@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About — Portfolio</title>
+  <link rel="icon" type="image/png" href="tracklistimages/mrah.png">
+  <script>
+    (function(d) {
+      var config = {
+        kitId: 'bfx5tcp',
+        scriptTimeout: 3000,
+        async: true
+      },
+      h=d.documentElement,t=setTimeout(function(){h.className=h.className.replace(/\bwf-loading\b/g,"")+" wf-inactive";},config.scriptTimeout),tk=d.createElement("script"),f=false,s=d.getElementsByTagName("script")[0],a;h.className+=" wf-loading";tk.src='https://use.typekit.net/'+config.kitId+'.js';tk.async=true;tk.onload=tk.onreadystatechange=function(){a=this.readyState;if(f||a&&a!="complete"&&a!="loaded")return;f=true;clearTimeout(t);try{Typekit.load(config)}catch(e){}};s.parentNode.insertBefore(tk,s)
+    })(document);
+  </script>
+  <link rel="stylesheet" href="styles.css?v=20260809bq4">
+</head>
+<body class="page-about">
+  <article class="page">
+
+    <div class="about-layout">
+      <!-- Sticky rail: menu icon + profile container move as one pinned unit
+           while .about-right scrolls past underneath. -->
+      <div class="about-rail">
+        <!-- Profile: photo/name/status/follow, in a container styled to match
+             the project pages' left panel (same fill + corner radius). -->
+        <div class="about-container">
+          <!-- Circular menu-icon button (links back to the tracklist) —
+               pinned to the container's own top-left corner. -->
+          <a href="index.html" class="home-button home-button--dark" aria-label="Back to tracklist">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <line x1="4" y1="7" x2="20" y2="7"/>
+              <line x1="4" y1="12" x2="20" y2="12"/>
+              <line x1="4" y1="17" x2="20" y2="17"/>
+            </svg>
+          </a>
+          <div class="about-photo-wrap">
+            <img src="aboutpage/meh.JPG" alt="Your photo" class="about-photo">
+          </div>
+          <h1 class="about-name">JIHO CHOI</h1>
+          <p class="about-role">
+            <span class="about-role__title">Product Designer</span>
+            <span class="about-role__sub">Based in <span class="about-role__sub--light">Abu Dhabi</span></span>
+          </p>
+          <a class="about-follow"
+             href="https://www.linkedin.com/in/jiho-choi-b5b546260/"
+             target="_blank"
+             rel="noopener noreferrer"><span class="about-follow__plus" aria-hidden="true">+</span><span class="about-follow__text">Follow</span></a>
+        </div>
+      </div>
+
+      <!-- Right column: placeholder sections, filled in later. -->
+      <div class="about-right">
+        <section class="about-section">
+          <p class="about-section__label">01</p>
+          <h2 class="about-section__title">Bio</h2>
+          <p class="about-bio">Currently fallen deep into vibe coding, with an exciting new project in the works! When I&rsquo;m not designing, you&rsquo;ll find me browsing for a new playlist, reading another fantasy novel, or learning a new language.</p>
+          <p class="about-bio">I&rsquo;m always happy to connect, so feel free to reach out.</p>
+        </section>
+        <section class="about-section">
+          <p class="about-section__label">02</p>
+          <h2 class="about-section__title">Skills &amp; Softwares</h2>
+          <div class="about-skills">
+            <div class="about-skills__row" style="align-items: center; gap: 16px;">
+              <img src="aboutpage/apps/ai.png" alt="Illustrator" style="height: 46px; width: auto;">
+              <img src="aboutpage/apps/ps.png" alt="Photoshop" style="height: 46px; width: auto;">
+              <img src="aboutpage/apps/id.png" alt="InDesign" style="height: 46px; width: auto;">
+              <img src="aboutpage/apps/ae.png" alt="AfterEffects" style="height: 46px; width: auto;">
+              <img src="aboutpage/apps/f.png" alt="Figma" style="height: 46px; width: auto;">
+              <img src="aboutpage/apps/sw.png" alt="SolidWorks" style="height: 46px; width: auto;">
+            </div>
+            <div class="about-skills__row">
+              <span style="color: #000000; font-size: 18px;">UI/UX &amp; Interaction Design <span style="font-size: 28px; margin: 0 3px; vertical-align: middle; display: inline-block; line-height: 0;">&middot;</span> Visual Communication <span style="font-size: 28px; margin: 0 3px; vertical-align: middle; display: inline-block; line-height: 0;">&middot;</span> Graphic Design <span style="font-size: 28px; margin: 0 3px; vertical-align: middle; display: inline-block; line-height: 0;">&middot;</span> 3D Design <span style="font-size: 28px; margin: 0 3px; vertical-align: middle; display: inline-block; line-height: 0;">&middot;</span> Human-centered Problem Solving</span>
+            </div>
+          </div>
+        </section>
+        <section class="about-section">
+          <p class="about-section__label">03</p>
+          <h2 class="about-section__title">Off the Clock</h2>
+          <!-- One tab open at a time (accordion) — click a collapsed tab to
+               open it, the previously-open one collapses back to its narrow
+               labeled column. Each gallery scrolls horizontally
+               (clock-tab__gallery) rather than growing the tab's height, and
+               every tab shares the same fixed .clock-tabs height so every
+               photo — in any tab — renders at the same height. -->
+          <div class="clock-tabs" data-clock-tabs>
+            <div class="clock-tab is-open" data-clock-tab tabindex="0" role="button" aria-expanded="true">
+              <span class="clock-tab__label">Coding Music</span>
+              <div class="clock-tab__body">
+                <div class="clock-tab__gallery">
+                  <div class="clock-tab__photo">
+                    <div class="clock-tab__photo-frame">
+                      <img src="aboutpage/lc1.png" alt="Strudel" class="clock-tab__photo-img">
+                    </div>
+                    <span class="clock-tab__photo-tag">Strudel</span>
+                  </div>
+                  <div class="clock-tab__photo">
+                    <div class="clock-tab__photo-frame">
+                      <img src="aboutpage/lc2.png" alt="Atom–Hydra" class="clock-tab__photo-img">
+                    </div>
+                    <span class="clock-tab__photo-tag">Atom–Hydra</span>
+                  </div>
+                  <div class="clock-tab__photo">
+                    <div class="clock-tab__photo-frame">
+                      <img src="aboutpage/lc3.JPG" alt="Teaching Live Coding at HLAB" class="clock-tab__photo-img">
+                    </div>
+                    <span class="clock-tab__photo-tag">Teaching Live Coding at HLAB</span>
+                  </div>
+                  <div class="clock-tab__photo">
+                    <div class="clock-tab__photo-frame">
+                      <img src="aboutpage/lc4.png" alt="Live Coding Performance" class="clock-tab__photo-img">
+                    </div>
+                    <span class="clock-tab__photo-tag">Live Coding Performance</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="clock-tab" data-clock-tab tabindex="0" role="button" aria-expanded="false">
+              <span class="clock-tab__label">Creativity</span>
+              <div class="clock-tab__body">
+                <div class="clock-tab__gallery">
+                  <div class="clock-tab__photo">
+                    <div class="clock-tab__photo-frame">
+                      <img src="aboutpage/c2.png" alt="Drawing the Things I Like" class="clock-tab__photo-img">
+                    </div>
+                    <span class="clock-tab__photo-tag">Drawing the Things I Like</span>
+                  </div>
+                  <div class="clock-tab__photo">
+                    <div class="clock-tab__photo-frame">
+                      <img src="aboutpage/c1.png" alt="Revamping Old Works" class="clock-tab__photo-img">
+                    </div>
+                    <span class="clock-tab__photo-tag">Revamping Old Works</span>
+                  </div>
+                  <div class="clock-tab__photo">
+                    <div class="clock-tab__photo-frame">
+                      <img src="aboutpage/c3.png" alt="Digital Illustration#1" class="clock-tab__photo-img">
+                    </div>
+                    <span class="clock-tab__photo-tag">Digital Illustration#1</span>
+                  </div>
+                  <div class="clock-tab__photo">
+                    <div class="clock-tab__photo-frame">
+                      <img src="aboutpage/c4.png" alt="Digital Illustration#2" class="clock-tab__photo-img">
+                    </div>
+                    <span class="clock-tab__photo-tag">Digital Illustration#2</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="clock-tab" data-clock-tab tabindex="0" role="button" aria-expanded="false">
+              <span class="clock-tab__label">Traveling &amp; Photography</span>
+              <div class="clock-tab__body">
+                <div class="clock-tab__gallery">
+                  <div class="clock-tab__photo">
+                    <div class="clock-tab__photo-frame">
+                      <img src="aboutpage/tp6.jpg" alt="Tokyo, Team Lab" class="clock-tab__photo-img">
+                    </div>
+                    <span class="clock-tab__photo-tag">Tokyo, Team Lab</span>
+                  </div>
+                  <div class="clock-tab__photo">
+                    <div class="clock-tab__photo-frame">
+                      <img src="aboutpage/tp1.jpg" alt="NY, Statue of Liberty" class="clock-tab__photo-img">
+                    </div>
+                    <span class="clock-tab__photo-tag">NY, Statue of Liberty</span>
+                  </div>
+                  <div class="clock-tab__photo">
+                    <div class="clock-tab__photo-frame">
+                      <img src="aboutpage/tp5.jpg" alt="NY, MET" class="clock-tab__photo-img">
+                    </div>
+                    <span class="clock-tab__photo-tag">NY, MET</span>
+                  </div>
+                  <div class="clock-tab__photo">
+                    <div class="clock-tab__photo-frame">
+                      <img src="aboutpage/tp2.JPG" alt="Shanghai" class="clock-tab__photo-img">
+                    </div>
+                    <span class="clock-tab__photo-tag">Shanghai</span>
+                  </div>
+                  <div class="clock-tab__photo">
+                    <div class="clock-tab__photo-frame">
+                      <img src="aboutpage/tp3.jpg" alt="Qingdao, LaoShan" class="clock-tab__photo-img">
+                    </div>
+                    <span class="clock-tab__photo-tag">Qingdao, LaoShan</span>
+                  </div>
+                  <div class="clock-tab__photo">
+                    <div class="clock-tab__photo-frame">
+                      <img src="aboutpage/tp4.jpg" alt="San Francisco" class="clock-tab__photo-img">
+                    </div>
+                    <span class="clock-tab__photo-tag">San Francisco</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+  </article>
+
+  <script src="main.js?v=20260809bq"></script>
+</body>
+</html>

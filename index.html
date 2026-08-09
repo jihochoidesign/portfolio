@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tracklist — Portfolio</title>
+  <link rel="icon" type="image/png" href="tracklistimages/mrah.png">
+  <script>
+    (function(d) {
+      var config = {
+        kitId: 'bfx5tcp',
+        scriptTimeout: 3000,
+        async: true
+      },
+      h=d.documentElement,t=setTimeout(function(){h.className=h.className.replace(/\bwf-loading\b/g,"")+" wf-inactive";},config.scriptTimeout),tk=d.createElement("script"),f=false,s=d.getElementsByTagName("script")[0],a;h.className+=" wf-loading";tk.src='https://use.typekit.net/'+config.kitId+'.js';tk.async=true;tk.onload=tk.onreadystatechange=function(){a=this.readyState;if(f||a&&a!="complete"&&a!="loaded")return;f=true;clearTimeout(t);try{Typekit.load(config)}catch(e){}};s.parentNode.insertBefore(tk,s)
+    })(document);
+  </script>
+  <link rel="stylesheet" href="styles.css?v=20260809bq">
+</head>
+<body class="page-tracklist">
+  <!-- Preloader: an opaque cover over the page until the carousel thumbnails
+       have decoded, so the first drag/click isn't janky while big images stream
+       in. main.js (initPreloader) fades it out once they're ready. -->
+  <div class="tl-preloader" id="tlPreloader" aria-hidden="true">
+    <div class="tl-preloader__spinner"></div>
+  </div>
+
+  <main class="np">
+
+    <!-- ============ LEFT: dark "now playing" player ============ -->
+    <!-- Wrapper rail: viewport-tall + sticky, flex-centers the panel so it's
+         always vertically centered on screen regardless of page height. -->
+    <div class="np-player-col">
+    <section class="np-player">
+
+      <div class="np-player__top">
+        <span class="np-player__nowplaying">NOW PLAYING · TRACK 01</span>
+      </div>
+
+      <!-- Cover image: shows each project's first image, painted from its
+           data-bg by initGallery in main.js. Domicile swaps this for its
+           gameplay video and Metro for its full map (below), unchanged. -->
+      <div class="np-carousel" data-carousel>
+        <div class="np-carousel__stage" data-carousel-stage>
+          <div class="np-card" data-carousel-card
+               data-bg="url('capstonecollection/thumbnails/1.png')"
+               role="img" aria-label="Project cover image"></div>
+        </div>
+        <video class="np-carousel__video" data-carousel-video
+               src="capstonecollection/a2demo.mp4" aria-label="Domicile gameplay demo"
+               autoplay loop muted playsinline></video>
+        <img class="np-carousel__image" data-carousel-image
+             src="tracklistimages/mapcar.png" alt="Metro, Rerouted map">
+      </div>
+
+      <div class="np-player__meta">
+        <p class="np-player__from">Album</p>
+        <p class="np-player__subtitle">CAPSTONE PROJECT</p>
+        <h2 class="np-player__title">Domicile</h2>
+        <p class="np-player__desc">What do you do when the world stops making sense overnight?</p>
+      </div>
+
+      <!-- Project timeline: date range, progress bar, and transport controls -->
+      <div class="np-timeline">
+        <div class="np-timeline__head">
+          <span class="np-timeline__date np-timeline__readout">Sept 1, 2025 &middot; Kickoff</span>
+          <span class="np-timeline__date np-timeline__date--end">Apr 2026</span>
+        </div>
+
+        <div class="np-timeline__track">
+          <span class="np-timeline__line" aria-hidden="true"></span>
+          <span class="np-timeline__fill" aria-hidden="true"></span>
+        </div>
+
+        <!-- Transport controls -->
+        <div class="np-controls">
+        <button class="np-controls__btn" type="button" aria-label="Previous track">
+          <svg viewBox="0.6 0 24 24" width="25.5" height="25.5" fill="currentColor" aria-hidden="true">
+            <rect x="6" y="6" width="2.4" height="12" rx="1.2"/>
+            <path d="M19.2 6.6v10.8a.6.6 0 0 1-.93.5l-7.8-5.4a.6.6 0 0 1 0-1l7.8-5.4a.6.6 0 0 1 .93.5z"/>
+          </svg>
+        </button>
+        <div class="np-controls__play-wrap">
+          <a class="np-controls__play" href="pixel-quest.html" aria-label="View project">
+            <svg viewBox="0 0 24 24" width="21.5" height="21.5" fill="currentColor" aria-hidden="true">
+              <path d="M8 5.5a1 1 0 0 1 1.53-.85l9.5 6.5a1 1 0 0 1 0 1.7l-9.5 6.5A1 1 0 0 1 8 18.5z"/>
+            </svg>
+          </a>
+          <span class="np-controls__play-label">View Project</span>
+        </div>
+        <button class="np-controls__btn" type="button" aria-label="Next track">
+          <svg viewBox="-0.6 0 24 24" width="25.5" height="25.5" fill="currentColor" aria-hidden="true">
+            <path d="M4.8 6.6v10.8a.6.6 0 0 0 .93.5l7.8-5.4a.6.6 0 0 0 0-1L5.73 6.1a.6.6 0 0 0-.93.5z"/>
+            <rect x="15.6" y="6" width="2.4" height="12" rx="1.2"/>
+          </svg>
+        </button>
+        </div>
+        <!-- /Transport controls -->
+      </div>
+
+    </section>
+    </div>
+    <!-- /LEFT -->
+
+    <!-- ============ RIGHT: cream album + tracklist ============ -->
+    <section class="np-list">
+
+      <div class="np-list__head">
+        <div class="np-list__heading">
+          <div class="np-list__heading-text">
+            <p class="album-meta__label">ALBUM</p>
+            <h1 class="np-list__title">A Designer Who Builds Experiences</h1>
+
+            <!-- Artist pill — links to about page -->
+            <a href="about.html" class="album-meta__artist np-artist">
+              <span class="album-meta__avatar">
+                <span class="album-meta__initials">JC</span>
+                <span class="album-meta__status" aria-hidden="true"></span>
+              </span>
+              <span class="album-meta__artist-text">
+                <strong>JIHO CHOI</strong>
+                <span class="album-meta__role">Designer · Online</span>
+                <span class="album-meta__about">About →</span>
+              </span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <ol class="np-tracks">
+
+        <!-- Rows are uniform so the "now playing" highlight (eq bars + warm
+             background) can move between them. The visible row is .track--active;
+             clicking a row loads it into the player (see initTrackPlayer) rather
+             than navigating — the href is a fallback for no-JS / new-tab. -->
+        <li class="track track--active">
+          <a class="track__main" href="pixel-quest.html">
+            <span class="track__eq" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="track__number">1</span>
+            <div class="track__icon track__icon--pixel" data-rotating-icon aria-hidden="true"></div>
+            <div class="track__text">
+              <span class="track__title">Domicile</span>
+              <span class="track__subtitle track__subtitle--dark">Using Game UX and Storytelling to Build Empathy</span>
+            </div>
+            <span class="track__runtime">17m</span>
+          </a>
+        </li>
+
+        <li class="track">
+          <a class="track__main" href="metro-rerouted.html">
+            <span class="track__eq" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="track__number">2</span>
+            <div class="track__icon track__icon--metro is-photo" aria-hidden="true"></div>
+            <div class="track__text">
+              <span class="track__title">Metro Rerouted</span>
+              <span class="track__subtitle">Designing Abu Dhabi's Transit Map</span>
+            </div>
+            <span class="track__runtime">11m</span>
+          </a>
+        </li>
+
+        <li class="track">
+          <a class="track__main" href="cardboard-companion.html">
+            <span class="track__eq" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="track__number">3</span>
+            <div class="track__icon track__icon--cardboard is-photo" aria-hidden="true"></div>
+            <div class="track__text">
+              <span class="track__title">Malibu-Baddie</span>
+              <span class="track__subtitle">Building an Animatronic Robot for Live Stage Production</span>
+            </div>
+            <span class="track__runtime">3m</span>
+          </a>
+        </li>
+
+      </ol>
+
+      <hr class="np-list__divider">
+
+      <!-- Find me elsewhere -->
+      <footer class="np-find">
+        <span class="footer__label">FIND ME ELSEWHERE</span>
+        <div class="footer__links">
+          <a href="mailto:jihochoi.design@gmail.com" class="footer__link">
+            <svg class="footer__icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="5" width="18" height="14" rx="2"/>
+              <path d="m3 7 9 6 9-6"/>
+            </svg>
+            <span class="footer__link-text">Email</span>
+          </a>
+          <a href="https://www.linkedin.com/in/jiho-choi-b5b546260" class="footer__link">
+            <svg class="footer__icon" viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true">
+              <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.22.79 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/>
+            </svg>
+            <span class="footer__link-text footer__link-text--linkedin">LinkedIn</span>
+          </a>
+          <a href="#" class="footer__link footer__link--resume">
+            <svg class="footer__icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
+              <path d="M14 3v5h5"/>
+              <path d="M9 13h6"/>
+              <path d="M9 17h6"/>
+            </svg>
+            <span class="footer__link-text">Resume</span>
+          </a>
+        </div>
+      </footer>
+
+    </section>
+    <!-- /RIGHT -->
+
+  </main>
+
+  <script src="main.js?v=20260809bq"></script>
+</body>
+</html>

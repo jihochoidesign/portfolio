@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "portfolio",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-I", "-c", "import functools; from http.server import test, SimpleHTTPRequestHandler; test(functools.partial(SimpleHTTPRequestHandler, directory='/Users/jiho/Desktop/Portfolio'), port=8010, bind='127.0.0.1')"],
+      "port": 8010
+    }
+  ]
+}

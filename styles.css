@@ -1,0 +1,4291 @@
+/* =========================================
+   DESIGN TOKENS
+   Variables we reuse everywhere instead of
+   typing the same values over and over.
+   Change a value here and it updates the
+   whole site.
+   ========================================= */
+:root {
+  /* Colors */
+  --color-bg: #fafafa;
+  --color-text: #1a1a1a;
+  --color-muted: #6b6b6b;
+  --color-accent: #ff4d4f;
+  --color-border: #e0e0e0;
+
+  /* One color per project, used for the
+     four-square grid motif */
+  --color-project-1: #f4a261; /* Cardboard companion */
+  --color-project-2: #2a9d8f; /* Pixel quest */
+  --color-project-3: #457b9d; /* Metro, rerouted */
+
+  /* Fonts */
+  --font-heading: "tondo", sans-serif;
+  --font-body: "tondo", sans-serif;
+
+  /* Spacing scale (multiples of 4px) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+  --space-7: 64px;
+
+  /* Border radius */
+  --radius-sm: 7px;
+  --radius-md: 7px;
+  --radius-lg: 7px;
+
+  /* Motion */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-interaction: 250ms;
+  --duration-entrance: 300ms;
+}
+
+/* Reduce/disable motion for people who asked
+   their OS to limit animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* =========================================
+   BASE RESET / GLOBAL STYLES
+   ========================================= */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 16px;   /* body-text floor (1rem) — UX min for readable copy */
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-heading);
+  line-height: 1.2;
+}
+
+a {
+  color: inherit;
+}
+
+/* =========================================
+   TRACKLIST PAGE
+   ========================================= */
+
+/* The tracklist page is now a full-bleed split "music player": a thin warm
+   frame shows around a rounded card (dark now-playing panel + cream list). */
+body.page-tracklist {
+  background: #ffffff;
+  padding: 12px 0 12px 12px;   /* right edge matches the 0px column gap */
+  font-family: "tondo", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* About page: same background as the tracklist page. The menu-icon button
+   reuses .home-button--dark (the exact look used in every project page's
+   left panel) for visual consistency, but that class also zeroes out
+   margin-bottom, pulls margin-left:-18px (tuned for its usual home inside
+   .np-player__top's padding), and centers align-self for that same flex
+   row. .page isn't a flex container, so align-self is already a no-op here,
+   but the margins do still apply — this restores the normal gap below the
+   icon and zeroes margin-left so it lines up flush with the profile content
+   underneath instead of poking out to the left of it.
+   Page width matches the project pages' text column at its retracted-panel
+   width (1096.4px — see body.is-panel-collapsed .project-shell .page),
+   scoped to this page only so it doesn't affect .page's other, unrelated
+   uses. */
+body.page-about {
+  background: #ffffff;
+  font-family: "tondo", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+body.page-about .page {
+  width: calc(1246.4px + 60px);
+  max-width: 100%;
+}
+body.page-about .home-button--dark {
+  /* Now lives inside .about-container (see about.html), pinned to its
+     top-left corner instead of flowing in the rail. */
+  position: absolute;
+  top: 17px;
+  left: 20px;
+  margin: 0;
+  /* .about-container carries transform:scale(1.1) to grow the whole profile
+     block as one unit — being a descendant now, this button would inherit
+     that same 1.1x and render visibly bigger than its identical twin on the
+     project pages. Counter-scale it back down to its true 2.5rem size;
+     transform-origin:top left keeps it pinned to the corner it's positioned at. */
+  transform: scale(calc(1 / 1.1));
+  transform-origin: top left;
+}
+
+/* Preloader — opaque cover held over the page until the carousel images are
+   decoded (see initPreloader in main.js), then faded out and removed. */
+.tl-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff; /* same as the page, so the fade is seamless */
+  transition: opacity 0.4s var(--ease-standard);
+}
+
+.tl-preloader.is-done {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tl-preloader__spinner {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 3px solid rgba(26, 22, 17, 0.16);
+  border-top-color: #1a1611;
+  animation: tl-spin 0.8s linear infinite;
+}
+
+@keyframes tl-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .tl-preloader__spinner { animation: none; }
+}
+
+/* Round home button, sits at the top-left of the centered content */
+.home-button {
+  align-self: flex-start;
+  margin-bottom: var(--space-4);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: #fff;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: transform var(--duration-interaction) var(--ease-standard);
+}
+
+.home-button:hover {
+  transform: scale(1.08);
+}
+
+/* Dark variant for the now-playing panel */
+.home-button--dark {
+  background: transparent;
+  border: 2.8px solid #0caaa2;
+  color: #0caaa2;                   /* same teal as the play button's icon */
+  /* Sit inline at the row's original spot, vertically centred */
+  align-self: center;
+  margin-bottom: 0;
+  margin-left: -18px;             /* pull closer to the panel's left edge */
+}
+
+.tracklist {
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: var(--space-6) var(--space-5);
+  /* Two columns: aside (cover / meta / about / find-me) on the left,
+     the tracklist on the right. */
+  display: grid;
+  grid-template-columns: minmax(300px, 360px) 1fr;
+  gap: var(--space-7);
+}
+
+.album-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.album-meta__label {
+  font-size: 15px;
+  color: #1cb5b5;
+  letter-spacing: 0.12em;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Artist pill — acts as a link to about page */
+.album-meta__artist {
+  position: relative;
+  top: 4px;
+  isolation: isolate;                /* keep the wave layers (z-index:-1) inside this box */
+  overflow: hidden;                  /* clip the waves to the rounded outline */
+  display: inline-flex;
+  align-items: center;
+  gap: 13px;
+  padding: 13px 18px 13px 13px;
+  border: 2.5px solid #0caaa2;
+  border-radius: 13px;
+  text-decoration: none;
+  background-color: transparent;
+  color: var(--color-text);
+  width: fit-content;
+}
+
+/* Hover fill: two tall elliptical layers (border-radius makes each a curved
+   crest) rush in from the left at different widths/speeds, so their leading
+   edges overlap like waves flooding across rather than one straight bar.
+   Same light-orange as the selected track; z-index:-1 keeps them behind the
+   avatar + text. */
+.album-meta__artist::before,
+.album-meta__artist::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  z-index: -1;
+  transform: translateX(-100%);
+  transition: transform 1.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Each layer's LEFT edge is flat (only the right/leading edge is rounded) so it
+   covers the button's left corners solidly when filled — no transparent gap at
+   rest. The layers are wide enough that the curved right edge sits fully past
+   the button's right edge at rest (clipped away), so the wave only shows while
+   travelling. Back crest: wider, slower, fainter. */
+.album-meta__artist::before {
+  top: -70%;
+  bottom: -70%;
+  width: 220%;
+  border-radius: 0 42% 42% 0 / 0 62% 62% 0;
+  background: #f7f7f7;
+}
+
+/* Front crest — narrower, faster, stronger; offset lower so the two curved
+   fronts don't line up. */
+.album-meta__artist::after {
+  top: -55%;
+  bottom: -70%;
+  width: 195%;
+  border-radius: 0 48% 48% 0 / 0 70% 70% 0;
+  background: #f7f7f7;
+  transition-duration: 1.05s;
+}
+
+.album-meta__artist:hover::before,
+.album-meta__artist:hover::after {
+  transform: translateX(0);
+}
+
+/* Rounded-square avatar with a green "online" dot notched into its corner */
+.album-meta__avatar {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.album-meta__initials {
+  width: 58px;
+  height: 58px;
+  border-radius: 7px;
+  background: #6dccbe;
+  color: #fff;
+  font-size: calc(1rem + 5px);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.album-meta__status {
+  position: absolute;
+  right: -3.5px;
+  bottom: -3.5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #3fbf63;
+  border: 2.5px solid #fdfcfa;   /* white ring separates it from the avatar */
+}
+
+.album-meta__artist-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.2;
+}
+
+.album-meta__artist-text strong {
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #0c0c0c;
+}
+
+.album-meta__role {
+  margin-top: 1px;
+  font-size: 15px;
+  color: #6d6d6d;
+}
+
+.album-meta__about {
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0caaa2;
+}
+
+/* =========================================
+   FEATURED / EXPANDED TRACK ("now playing")
+   The first track shown open, like the screenshot. Image strip omitted
+   for now (added later); restore [data-rotating-icon] on its first thumb then.
+   ========================================= */
+.player {
+  background: #efe8da;
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.player__top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.player__title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  line-height: 1.1;
+}
+
+.player__subtitle {
+  color: #6b6258;
+  font-size: 0.95rem;
+}
+
+.player__desc {
+  margin: var(--space-5) 0 0;
+  color: #3f3a33;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.track {
+  display: flex;
+  flex-direction: column;
+  padding: 21px var(--space-2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--duration-interaction) var(--ease-standard);
+}
+
+/* The always-visible row: number + icon + text + runtime.
+   It's an <a> on real tracks, so reset link styling. */
+.track__main {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+.track:hover {
+  background: #f7f7f7;
+}
+
+.track__number {
+  width: 1.5rem;
+  text-align: right;
+  font-size: 15px;
+  color: var(--color-muted);
+  flex-shrink: 0;
+}
+
+.track:not(.track--locked):hover .track__number {
+  visibility: hidden;
+  position: relative;
+}
+
+.track:not(.track--locked):hover .track__number::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  visibility: visible;
+  width: calc(1.05rem + 3.5px);
+  height: calc(1.05rem + 3.5px);
+  margin-left: auto;
+  background-color: #0caaa2;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M8 5.5a1 1 0 0 1 1.53-.85l9.5 6.5a1 1 0 0 1 0 1.7l-9.5 6.5A1 1 0 0 1 8 18.5z' stroke='%23000' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M8 5.5a1 1 0 0 1 1.53-.85l9.5 6.5a1 1 0 0 1 0 1.7l-9.5 6.5A1 1 0 0 1 8 18.5z' stroke='%23000' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.track__icon {
+  width: calc(3.5rem + 3.5px); /* 59.5px */
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+  border-radius: calc(var(--radius-sm) - 2.6px);
+  background: #e8e8e8;
+  border: 1px dashed var(--color-muted);
+  /* Pull the text 4px closer to the icon without touching the other gaps */
+  margin-right: -4px;
+}
+
+/* When a real image is applied (JS sets background-image inline), drop the
+   gray dashed placeholder and let the square image cover the box. */
+.track__icon.is-photo {
+  background-color: transparent;
+  background-size: cover;
+  background-position: center;
+  border: none;
+}
+
+/* Per-track gradient thumbnails (stand-ins for real cover images) */
+.track__icon--metro,
+.track__icon--cardboard {
+  border: none;
+}
+
+.track__icon--metro {
+  background: linear-gradient(135deg, #cdba85, #a8945f);
+}
+
+.track__icon--metro.is-photo {
+  background: url('tracklistimages/mapicon.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.track__icon--cardboard {
+  background: linear-gradient(135deg, #c2a98f, #8f7459);
+}
+
+.track__icon--cardboard.is-photo {
+  background: url('tracklistimages/robo.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.track__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.track__title {
+  font-size: 19px;
+  font-weight: 700;
+  margin: 0;
+  color: #0c0c0c;
+}
+
+.track__subtitle {
+  display: block;
+  font-size: 17px;
+  color: #6d6d6d;
+  margin: -2.5px 0 0;
+}
+
+.track__subtitle--dark {
+  color: #757575;
+}
+
+/* Per-row project tags, moved here from the left panel's .np-player__pills.
+   A SIBLING of .track__main (not nested inside .track__text) so expanding it
+   grows the row purely by adding height below — .track__main's own height
+   never changes, so nothing inside it (icon, number, title, subtitle,
+   runtime) re-centers or shifts when a row expands. margin-left reproduces
+   .track__text's own left indent (measured: 131.594px from the row's left
+   edge, minus the row's 16px padding) since this now sits outside that
+   flex column and no longer inherits it automatically. */
+.track__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  margin-left: 115.594px;
+  margin-top: 0;
+  transition: max-height 0.28s var(--ease-standard),
+              margin-top 0.28s var(--ease-standard),
+              opacity 0.18s var(--ease-standard);
+}
+
+.np-list .track:not(.track--locked):hover .track__tags,
+.np-list .track--active .track__tags {
+  max-height: 60px;
+  opacity: 1;
+  margin-top: 13px;   /* subtitle → tags gap, +12px, -3px, -3px */
+}
+
+/* Same pill as the panel tags they replaced. Named __pill, not __tag: a dead
+   .track__tag rule further down (from the old .track__detail component) sets
+   opacity: 0 and would win on cascade order, hiding these. */
+.track__pill {
+  padding: 4px 11.5px 6px;
+  border: 1.5px solid #41c1ce;
+  border-radius: 999px;
+  color: #000;
+  font-size: 15px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track__tags {
+    transition: none;
+  }
+}
+
+.track__tag {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  margin: 4px 0 0;
+  opacity: 0;
+  transition: opacity var(--duration-interaction) var(--ease-standard);
+}
+
+.track__runtime {
+  font-size: 15px;
+  color: var(--color-muted);
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.footer__label {
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  margin-right: var(--space-2);
+}
+
+/* Small pill buttons for the social links */
+.footer__link {
+  position: relative;            /* anchor for the shine streak (::before) */
+  overflow: hidden;               /* clip the streak to the pill's rounded shape */
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 15px;
+  line-height: 1;
+  color: #35c2c9;
+  text-decoration: none;
+  padding: 4.5px calc(var(--space-3) - 4px);   /* width trimmed 3px; equal top/bottom so icon+text center in the pill (was 6px/3px, off-center by 1.5px) */
+  border: 1.5px solid #41c1ce;    /* same outline as the "NOW PLAYING" tag */
+  border-radius: 999px;
+  background: transparent;
+}
+
+.footer__link-text {
+  position: relative;
+  top: 0;
+}
+
+/* Diagonal light streak that sweeps across the pill on hover. Parked off the
+   left edge at rest; the animation slides it through to the right. */
+.footer__link::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(115deg, transparent, rgba(255, 255, 255, 0.75), transparent);
+  transform: skewX(-20deg);
+  pointer-events: none;
+}
+
+.footer__link:hover::before {
+  animation: footer-link-shine 0.7s ease;
+}
+
+@keyframes footer-link-shine {
+  from { left: -60%; }
+  to   { left: 140%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer__link:hover::before {
+    animation: none;
+  }
+}
+
+.footer__icon {
+  flex-shrink: 0;
+  color: #35c2c9;
+}
+
+.footer__link--resume {
+  gap: calc(var(--space-1) - 1px);
+}
+
+.footer__link-text {
+  display: inline-block;
+  margin-top: -0.5px;
+  color: #000;
+}
+
+.footer__link-text--linkedin {
+  margin-top: 1px;
+  top: -0.74px;
+  color: #000;
+}
+
+
+/* =========================================
+   CONTENT PAGES (about + project pages)
+   Shared layout so every project page looks
+   identical — edit here once, all pages update.
+   ========================================= */
+.page {
+  /* Widened so the tag column (page − cover − gap) reaches ~730px and the
+     Role/Team/Made-with row fits on one line. Banner & divider scale with this. */
+  max-width: 1030px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5);
+}
+
+/* Every project page carries .page-project (Domicile also keeps .page-domicile
+   for the few things that are genuinely its own). Structural panel/page styling
+   hangs off .page-project so all four project pages render identically. */
+body.page-project {
+  font-family: "tondo", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  background: #ffffff;             /* same as the tracklist page background */
+}
+
+body.page-domicile .project__title--pixel {
+  font-family: "yoon-px-pixman", sans-serif;
+  /* Same size as Domicile's title in its own left panel (.np-project__title). */
+  font-size: clamp(calc(2rem + 14px), 3.4vw, calc(2.6rem + 14px));
+}
+
+/* --- Project-page left panel: title block + "in this chapter" list --------
+   The panel itself reuses .np-player (grey, sticky, viewport-tall). On the
+   project page it drops the carousel/meta and instead lists the chapters. */
+
+/* The project panel gets the same treatment as the tracklist panel: wrapped in
+   the .np-player-col rail (viewport-tall, sticky, flex-centered), content-hugging
+   height — so it sits in the EXACT same spot on both pages and stays put while
+   the article scrolls behind it. Only the internal gap differs. */
+.np-player--project {
+  gap: 0;
+}
+
+.np-project {
+  margin-top: 2px;
+  text-align: left;
+}
+
+.np-project__label {
+  font-size: 15px;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #0caaa2;
+  margin: 0 0 4.5px;               /* capstone → title gap */
+}
+
+/* Pixel face, matching the "Domicile" header on the project body */
+.np-project__title {
+  font-family: "yoon-px-pixman", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  /* Same size as Domicile's title in the tracklist's now-playing panel
+     (.np-player__title) — only Domicile uses this base rule unmodified. */
+  font-size: clamp(calc(2rem + 14px), 3.4vw, calc(2.6rem + 14px));
+  line-height: 1;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  -webkit-text-stroke: 0.6px currentColor;
+  color: #000000;
+  margin: 0;
+}
+
+/* Metro, Rerouted's left-panel title uses the bold display face rather than the
+   pixel font — the same treatment its title has on the tracklist panel (see
+   .np-player__title--tagfont). This one sits after its base .np-project__title
+   above; the page-header counterpart lives with the other .project__title
+   modifiers further down, and has to stay there — see the note on it. */
+.np-project__title--deck {
+  font-family: "tondo", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+  font-size: clamp(calc(2.2rem - 7px), calc(3.6vw - 7px), calc(2.9rem - 7px));  /* base clamp − 7px */
+  -webkit-text-stroke: 0;          /* only the pixel face needs the fake-bold stroke */
+}
+
+/* Metro's left-panel label sits tighter to its title than the pixel-titled
+   pages do — the deck face has different vertical metrics. */
+body[data-project="metro"] .np-project__label {
+  margin-bottom: 1.5px;            /* shared 4.5px − 3px */
+}
+
+/* Metro's header sits tighter under the "ALBUM" label than the pixel-titled
+   pages do — the deck face has different vertical metrics. Scoped to Metro so
+   the other three project pages keep .project__label's shared 2.5px. */
+body[data-project="metro"] .project__label {
+  margin-bottom: -3px;             /* shared 2.5px − 5.5px; negative pulls the title up */
+}
+
+.np-project__rule {
+  border: 0;
+  border-top: 1.5px solid #ebf7f7;  /* same as the tracklist divider */
+  margin: 20px 0 0;
+}
+
+/* Same disappearing-line behavior as the hairlines between chapters: hide the
+   rule once the first row's rounded highlight (hover or active) touches it. */
+.np-project__rule:has(+ .np-chapters .np-chapter:first-child:hover),
+.np-project__rule:has(+ .np-chapters .np-chapter:first-child.np-chapter--active) {
+  opacity: 0;
+}
+
+.np-chapters {
+  list-style: none;
+  /* .np-player is a flex column with gap: var(--space-3) between every child,
+     including the rule above this — cancel that gap so the divider sits flush
+     against the first row instead of floating above it. */
+  margin: calc(-1 * var(--space-3)) -12px 0;  /* sides let the highlight bleed */
+  padding: 0;
+  min-height: 0;
+  overflow-y: auto;                /* scroll only if the chapters ever outrun the panel */
+}
+
+.np-chapter {
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  align-items: center;
+  column-gap: 14px;
+  padding: 14px 12px 12.5px;       /* vertical +2px each; width kept via 12px sides */
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+}
+
+/* Same hover fill as a tracklist row */
+.np-chapter:not(.np-chapter--active):hover {
+  background: #f7f7f7;             /* same as the tracklist row hover */
+}
+
+/* Hairline between chapters — identical to the tracklist's track separators */
+.np-chapter:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;                       /* flush against the row, no gap */
+  height: 1.5px;
+  background: #ebf7f7;
+}
+
+/* The line a row touches disappears once that row's rounded highlight
+   (hover or the active state) is showing. */
+.np-chapter:hover::after,
+.np-chapter--active::after,
+.np-chapter:has(+ .np-chapter:hover)::after,
+.np-chapter:has(+ .np-chapter--active)::after {
+  opacity: 0;
+}
+
+/* Number, play icon and equalizer all live in the same grid cell, centered on
+   the exact same spot — only one shows at a time. Default: the number. Hover a
+   non-active chapter: a play triangle. Active chapter: the animated bars. */
+.np-chapter__num {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: center;
+  font-size: 15px;
+  color: #0caaa2;
+  text-align: center;
+}
+
+.np-chapter__play,
+.np-chapter__eq {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: center;
+  display: none;
+}
+
+.np-chapter__play {
+  align-items: center;
+  justify-content: center;
+  color: #0caaa2;                  /* same as the tracklist play icon */
+}
+
+/* Higher specificity than the later .track__eq rule so the bars center on the
+   same spot as the number/play icon instead of sitting flush-right. */
+.np-chapter .np-chapter__eq { justify-content: center; }
+
+/* Hover a non-active chapter → number swaps to the play icon. */
+.np-chapter:not(.np-chapter--active):hover .np-chapter__num  { display: none; }
+.np-chapter:not(.np-chapter--active):hover .np-chapter__play { display: flex; }
+
+/* Active chapter → equalizer bars. */
+.np-chapter--active .np-chapter__num  { display: none; }
+.np-chapter--active .np-chapter__play { display: none; }
+.np-chapter--active .np-chapter__eq   { display: flex; }
+
+.np-chapter__text {
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.np-chapter__title {
+  font-weight: normal;
+  font-size: 17px;
+  color: #0c0c0c;
+  line-height: 1.2;
+}
+
+.np-chapter__time {
+  grid-column: 3;
+  font-size: 15px;                 /* same size as the chapter number */
+  color: var(--color-muted);       /* same as the tracklist runtime (4:05 / 3:48) */
+  white-space: nowrap;
+}
+
+/* Active chapter: same mint band as the tracklist's now-playing row */
+.np-chapter--active {
+  background: #f2fbfb;
+}
+
+.np-chapter--active .np-chapter__title {
+  color: #0caaa2;                  /* same as the tracklist's now-playing title */
+}
+
+/* Project page: two-column shell with the white now-playing panel on the left
+   (same position as on the tracklist) and the article content on the right. */
+.project-shell {
+  display: grid;
+  /* minmax(0, 1fr) — NOT 1fr. A bare 1fr track's minimum is its content's
+     min-content, so a chapter with a longer word/heading would widen the right
+     column; pinning the floor to 0 keeps every chapter's content the same width. */
+  /* Mirror the tracklist's .np layout exactly, so the left panel sits in the
+     identical spot: full-width grid, 12px page padding, 12px column gap. */
+  grid-template-columns: minmax(350px, 430px) minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;              /* article stays top-aligned; the panel overrides to center */
+  min-height: 100vh;               /* viewport-tall row so the panel can center vertically */
+  padding: 12px;
+  /* The card fan's off-screen cards reach ~219px past the body column (see
+     .card-fan). To the left that's fine — there's a whole panel column of room
+     and they pass behind it — but to the right only the centring gutter is left,
+     so the rest would become horizontal page scroll. CLIP, not hidden: hidden
+     would make this a scroll container and the panel's position:sticky would
+     stop working. clip has no such side effect. */
+  overflow-x: clip;
+  /* Animates the retract/expand; harmless when the width never changes. */
+  transition: grid-template-columns 0.28s var(--ease-standard);
+}
+
+/* The content (album cover / tags / sections) is centered in its column via
+   margin:0 auto. Widening it grows both sides equally, so the album shifts ~70px
+   left and the right side extends ~70px — keeping the left and right gaps equal. */
+.project-shell .page {
+  width: 920px;                    /* fixed width so every chapter's body is identical (+70px, −30px) */
+  max-width: 100%;                 /* never overflow a narrower column */
+  /* Seals the body content into ONE stacking context so the two columns have a
+     defined order. Without it the card fan's per-card z-indices (1…9) sit in the
+     root context and beat the panel, which is positioned but z-index:auto — so
+     cards spilling left painted OVER the panel. z-index:0 keeps those 1…9 local
+     to the page; .np-player-col then only has to clear 0 to stay on top. */
+  position: relative;
+  z-index: 0;
+  padding: var(--space-6) 0;       /* side padding 32 → 0: content shifted fully left + widest */
+  /* Retracting the panel frees up a lot of column width, but this element's
+     width is a fixed px value, not a %, so that freed space would otherwise
+     just widen the margin:auto centering gutters rather than the body itself.
+     The collapsed-state override below is what actually grows the body;
+     this transition is what makes that growth animate alongside the panel's
+     own 0.28s retract instead of snapping a beat after it. */
+  transition: width 0.28s var(--ease-standard);
+}
+
+/* Panel retracted → main body 30% wider (920px × 1.3 = 1196px), still capped
+   by max-width:100% so it can never overflow a column narrower than that. */
+body.is-panel-collapsed .project-shell .page {
+  width: 1196.4px;   /* 1196px × 0.9, +20, +100px */
+}
+
+/* --- Project header: cover + title + credits --- */
+.project__header {
+  display: flex;
+  gap: 24px;                       /* cover↔intro gap (32 − 8px) */
+  align-items: flex-end;           /* push intro down so tags' bottom aligns with cover bottom */
+  flex-wrap: wrap;
+  margin-bottom: calc(var(--space-6) - 15px);  /* cover/tags → now-playing gap reduced 15px */
+}
+
+.project__cover {
+  width: 200px;
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+  border: 2px dashed var(--color-muted);
+  border-radius: var(--radius-sm);
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-3);
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+
+.project__cover.is-photo {
+  background-color: transparent;
+  background-size: cover;
+  background-position: center;
+  border: none;
+}
+
+.project__intro {
+  flex: 1;
+  min-width: 240px;
+}
+
+.project__label {
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #1cb5b5;
+  font-weight: 500;
+  margin: 0 0 2.5px;
+}
+
+.project__title {
+  font-size: 2.4rem;
+  margin: 0 0 var(--space-1);
+}
+
+.project__title--pixel {
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 0 0 14.5px;
+}
+
+/* Domicile keeps the pixel display face; every other project title is tondo
+   (inherited from .project__title's h1 default) via the rule below. */
+body.page-domicile .project__title--pixel {
+  font-family: "yoon-px-pixman", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  -webkit-text-stroke: 0.6px currentColor;
+}
+
+/* Metro's page-header title — same bold display face as its left-panel title,
+   with the uppercase/spacing that --pixel gives Domicile's.
+   KEEP THIS AFTER the base .project__title above: both are single-class
+   selectors, so specificity ties and source order decides. Moved earlier in the
+   file, the base rule's margin silently wins and the title → tags gap here
+   stops responding entirely. */
+.project__title--deck {
+  font-family: "tondo", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+  -webkit-text-stroke: 0;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 0 0 13.5px;                /* Metro → tags gap */
+}
+
+/* Metadata tags — bordered label-over-value cards (mint border; orange for "Made with").
+   Whole block scaled ~0.87× from the previous size so the three rows fit within the
+   270px album-cover height; the Domicile→tags gap (title margin-bottom) is unchanged. */
+/* Scaled up 1.061× from the previous hand-tuned values so each pill ends up
+   exactly 2px taller with every proportion preserved. The 2.5px border is
+   deliberately NOT scaled — it's shared with the other pill tags on the page
+   and would desync from them — so the whole 2px lands in padding, type and
+   the value's negative margin. */
+.project__tags {
+  display: flex;
+  flex-direction: column;         /* fixed rows: Year+Timeline / Role+Team+Made with */
+  gap: 6.32px;                     /* row gap (+3.5px, −1.5px) × 1.061 */
+}
+
+.project__tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22.59px;
+}
+
+.project__tag {
+  display: inline-flex;
+  flex-direction: column;         /* label on top, value below — two separate lines */
+  gap: 0;                          /* line space now negative → set on the value's margin */
+  padding: 0;
+  border: none;
+  border-radius: 999px;           /* pill-shaped container */
+  background: transparent;
+  white-space: nowrap;            /* keep each value on a single line */
+}
+
+.project__tag-label {
+  font-size: 14px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: #41c1ce;
+}
+
+.project__tag-value {
+  font-size: 14px;
+  color: #000000;
+  margin-top: -2.81px;            /* previous −2.65px × 1.061 */
+}
+
+.project__tag--madewith {
+  background: transparent;
+}
+
+/* Fallback copy shown in a chapter body before real content is swapped in */
+.placeholder-text {
+  color: var(--color-muted);
+  margin: 0;
+}
+
+/* =========================================
+   RETRACTABLE LEFT PANEL (project pages)
+   Collapsed, the panel becomes a narrow rail: the toggle at the top and one
+   tick per chapter below it, the current chapter's tick filled.
+   The ticks ARE the .np-chapter rows, just restyled — so the scrollspy
+   highlight and the click-to-scroll handler keep working untouched, with no
+   second set of nodes to keep in sync.
+   ========================================= */
+.np-panel-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #1cb5b5;   /* same teal as the "now playing" tag text */
+  cursor: pointer;
+  /* The icon is now the last element in the expanded row, so IT carries the
+     pull that used to be on the pill (.np-player__nowplaying's own -17px is
+     cancelled below) — landing the icon's right edge exactly where the pill's
+     right edge used to sit before the icon existed. Cancelled again for the
+     collapsed rail, where this would pull the centered icon off-centre. */
+  margin-right: -17px;
+  transition: background var(--duration-interaction) var(--ease-standard);
+}
+
+.np-panel-toggle:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* "Skip to next project" pill, pinned to the bottom of the panel and
+   right-aligned — margin-top:auto on a flex-column child pushes it to the
+   end of .np-player's column, align-self:flex-end lines its right edge up
+   with the toggle icon above. Same pill look as the "NOW PLAYING" tag
+   (.np-player__nowplaying) for visual consistency. Drops out with
+   everything else non-essential when the panel collapses to its icon rail. */
+.np-panel-next {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3.5px;
+  align-self: flex-end;
+  margin-top: auto;
+  /* body.page-project .np-player--project shrinks the panel's own
+     padding-bottom to (--space-5 − 16px) for other reasons — 16px short of
+     the 32px padding-top that puts space above the "now playing" tag. This
+     margin-bottom adds that 16px back so the gap below this button matches
+     the gap above the tag exactly. */
+  margin-bottom: 16px;
+  /* Same fix as .np-player--project .np-player__nowplaying: this is the same
+     pill shape, so it needs the same -7px pull to land its right edge flush
+     with the panel edge (matching the toggle icon above it). */
+  margin-right: -7px;
+  padding: 6.5px 13.25px 5px;
+  border: 1.5px solid #41c1ce;      /* same as the "now playing" tag */
+  border-radius: 999px;
+  background: transparent;
+  color: #000000;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  text-transform: none;
+  text-decoration: none;
+  line-height: 1;
+  transition: background var(--duration-interaction) var(--ease-standard);
+}
+.np-panel-next:hover {
+  animation: about-follow-shake 0.45s ease-in-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .np-panel-next:hover {
+    animation: none;
+  }
+}
+.np-panel-next svg {
+  display: block;
+  flex-shrink: 0;
+  color: #0caaa2;
+}
+body.is-panel-collapsed .np-panel-next {
+  display: none;
+}
+
+/* The top row has three children now (home button, pill, toggle), which would
+   otherwise re-spread the row's space-between layout. auto-margin on the pill
+   consumes the leading space and pushes it — and the toggle right after it —
+   to the panel's edge as a pair, in that order. */
+.np-player--project .np-player__nowplaying {
+  margin-left: auto;
+  /* Cancels the shared -17px pull (the icon after it is the edge-aligned
+     element here, not the tag), then goes 7px past zero to tighten the
+     tag→icon gap — this doesn't move the icon, which stays pinned to the
+     panel edge by its own margin regardless of this value. */
+  margin-right: -7px;
+}
+
+/* Expanded, the icon mirrors so the chevron points inward ("collapse"); the
+   collapsed state uses the glyph as drawn, matching the rail mockup. */
+.np-panel-toggle svg {
+  transform: rotate(180deg);
+  transition: transform var(--duration-interaction) var(--ease-standard);
+}
+
+body.is-panel-collapsed .np-panel-toggle svg {
+  transform: none;
+}
+
+/* Cancel the expanded row's edge-pull (see .np-panel-toggle) — collapsed,
+   the toggle is the row's only visible child and justify-content:center
+   centers it; a lingering asymmetric margin would throw that off. */
+body.is-panel-collapsed .np-panel-toggle {
+  margin-right: 0;
+}
+
+/* Narrow the grid column itself, so the article reclaims the space. */
+body.is-panel-collapsed .project-shell {
+  /* minmax(56px, 56px), not a bare 56px — the expanded rule's first track is
+     minmax(350px, 430px), and a browser can only smoothly interpolate
+     grid-template-columns when both endpoints share the same track "shape".
+     A plain length isn't the same shape as a minmax(), so with a bare 56px
+     here the transition had nothing valid to interpolate and jumped instead
+     of gliding — worst on retract, where the mismatch resolves. */
+  grid-template-columns: minmax(56px, 56px) minmax(0, 1fr);
+}
+
+body.is-panel-collapsed .np-player--project {
+  padding-left: 0;
+  padding-right: 0;
+  align-items: center;
+}
+
+body.is-panel-collapsed .np-player__top {
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+/* Everything that isn't the toggle or the ticks drops out of the rail. */
+body.is-panel-collapsed .np-player__top .home-button,
+body.is-panel-collapsed .np-player__nowplaying,
+body.is-panel-collapsed .np-project,
+body.is-panel-collapsed .np-project__rule {
+  display: none;
+}
+
+body.is-panel-collapsed .np-chapters {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: -18px 0 0;
+  overflow: visible;               /* ticks are small; nothing to scroll */
+}
+
+/* Row → tick. The grid columns collapse away and the row becomes a dot. */
+body.is-panel-collapsed .np-chapter {
+  display: block;
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border-radius: 50%;
+  background: #cfcfd6;
+  transition: background var(--duration-interaction) var(--ease-standard),
+              transform var(--duration-interaction) var(--ease-standard);
+}
+
+body.is-panel-collapsed .np-chapter > * {
+  display: none;                   /* num, text, time, eq bars, play glyph */
+}
+
+/* Two base rules re-show a child on hover / when active, and both out-specify
+   the blanket rule above — .np-chapter:not(.np-chapter--active):hover
+   .np-chapter__play is (0,4,0) against its (0,2,1). Overridden here by name so
+   a glyph can't reappear inside a 9px tick; these selectors are deliberately
+   long-winded to clear that specificity. */
+body.is-panel-collapsed .np-chapter:not(.np-chapter--active):hover .np-chapter__play,
+body.is-panel-collapsed .np-chapter--active .np-chapter__eq {
+  display: none;
+}
+
+body.is-panel-collapsed .np-chapter:hover {
+  background: #b0b0ba;
+}
+
+/* Current chapter — site accent rather than the mockup's blue, so the rail
+   matches the peach/orange used for the active chapter everywhere else. */
+body.is-panel-collapsed .np-chapter--active {
+  background: #0caaa2;
+  transform: scale(1.25);
+}
+
+/* The rail has no room for the hover/active flourishes the wide rows carry. */
+body.is-panel-collapsed .np-chapter::after,
+body.is-panel-collapsed .np-chapter::before {
+  display: none;
+}
+
+/* --- Continuous-scroll chapter sections --- */
+/* The orange hairline that used to be the now-playing bar's top border stays
+   on as the divider between the page header and the first chapter. The 9px
+   above / 24px below match the gaps the bar itself sat in. */
+.project__chapters {
+  margin-top: 9px;
+  padding-top: 44px;
+  border-top: 1.5px solid #ebf7f7;
+}
+
+/* Every chapter is on the page at once, stacked. scroll-margin-top leaves a
+   little breathing room above a section that's been jumped to. */
+.project__chapter-section {
+  scroll-margin-top: 24px;
+}
+
+/* Breathing room between chapters so the seam reads as a new section rather
+   than more of the previous one. Larger than any trailing margin inside a
+   section, so this value is the gap you actually get. */
+.project__chapter-section + .project__chapter-section {
+  margin-top: 200px;
+}
+
+/* "NUM  Title" — the number picks up the same orange as the left panel's
+   chapter numbers so a section ties back to its row at a glance. */
+.project__chapter-heading-num {
+  margin-right: 10px;
+  color: #0caaa2;
+}
+
+.project__chapter-image {
+  display: block;
+  width: 670px;
+  max-width: 100%;
+  margin: 0 auto 18px;
+}
+
+/* Arc 2 furniture image, under tag 2. Now preceded by the section's numbered
+   subtitle, so top margin follows the content→content rule (34px) instead of
+   relying on the tag's margin-bottom. Spans the full text column. */
+.project__chapter-furniture-frame {
+  width: 100%;
+  margin: 36px auto 0; /* bottom 0 so the 11.5px image→caption gap is owned by the caption */
+  box-sizing: border-box;
+  padding: 12.5px; /* 5px base + 7.5px each side → image is 25px smaller than the frame */
+  border: none;
+  border-radius: 5px;
+}
+
+/* Full-width version rendered at ~378px tall; reduced by 150px to 228px. */
+.project__chapter-tsplan-img {
+  display: block;
+  height: 228px;
+  width: auto;
+  max-width: 100%;
+}
+
+/* Simple 2-slide carousel: both source images share the exact same 16:9
+   ratio, so the stage is a fixed-height box at that ratio and both slides
+   just fill it — no letterboxing, no per-slide sizing needed. */
+.simplecar {
+  position: relative;
+  height: 298px;                     /* 278px + 150px − 50px − 30px − 50px */
+  width: calc(298px * 16 / 9);
+  max-width: 100%;
+  overflow: hidden;                  /* clip the off-stage slides during the swipe */
+}
+
+/* Slides sit side by side via translateX (JS sets it to (index − active)·100%),
+   so switching slides swipes horizontally instead of cross-fading. object-fit:
+   cover fills the container edge-to-edge (any overflow is clipped), so the
+   image is never inset from the border on any side. */
+.simplecar__slide.project__chapter-tsplan-img {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.simplecar__dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 13px;                  /* was 10px, +5px, −2px */
+}
+
+/* Outline-only until active, then filled — same treatment as the other dots. */
+.simplecar__dot {
+  width: 10.5px;                     /* was 9px, +3px, −1.5px */
+  height: 10.5px;
+  padding: 0;
+  box-sizing: border-box;
+  border: 1px solid #1c1c1c;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition: background var(--duration-interaction) var(--ease-standard),
+              border-color var(--duration-interaction) var(--ease-standard),
+              transform var(--duration-interaction) var(--ease-standard);
+}
+
+.simplecar__dot.is-active {
+  background: #0caaa2;
+  border-color: #0caaa2;
+  transform: scale(1.25);
+}
+
+.project__chapter-furniture-img {
+  display: block;
+  width: 100%;
+}
+
+/* Row of the 4 "w" furniture pieces, all rendered at the same height so they
+   line up regardless of each image's native aspect ratio. Top margin follows
+   the chapter's content→content rule (34px); no next tag follows, so bottom
+   stays 0. Images grow to fill the full text width (flex:1 1 0 — all four
+   share ~the same aspect ratio, so equal widths already yield equal heights)
+   while the 20px gap between them stays fixed, so retracting the left panel
+   grows the images instead of stretching the gaps. */
+.project__chapter-wgallery {
+  display: flex;
+  align-items: flex-start;
+  gap: 30px;
+  margin: 34px 0 0;
+}
+
+/* Each "w" piece + its caption, stacked and centred like the placeholder
+   figures above. */
+.project__chapter-wgallery-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+}
+
+.project__chapter-wgallery-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Same image→caption gap as the placeholder figures (11.5px). */
+.project__chapter-wgallery-figure .project__chapter-caption {
+  margin-top: 11.5px;
+}
+
+/* Row of the 4 room maps (bed/toi/kit/liv). Top margin follows the
+   content→content rule (34px); collapses with the text placeholder's 20px
+   bottom margin to 34px. Each figure's flex-grow (set inline, per-image) is
+   proportional to its image's aspect ratio — flex-basis:0 turns that into
+   cell width ∝ ratio, so every image fills its cell at width:100% and comes
+   out the same height, with the 25px gap staying fixed. The row fills the
+   full text width, so retracting the left panel grows the images instead of
+   the gaps. */
+.project__chapter-mapgallery {
+  display: flex;
+  align-items: flex-start;
+  gap: 25px;
+  margin: 42px 0 0;
+}
+
+.project__chapter-mapgallery-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-basis: 0;
+  min-width: 0;
+  margin: 0;
+}
+
+.project__chapter-mapgallery-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* nplan2's frame. Tag 3's own 23px margin-bottom owns the tag→image gap, so
+   the row's top margin stays 0. */
+.project__chapter-objgallery {
+  width: 100%;
+  margin: 0;
+}
+
+/* Same size as nplan1 (80% of text width, height auto). */
+.project__chapter-objgallery-img {
+  display: block;
+  width: 80%;
+  height: auto;
+  margin: 0 auto;
+}
+
+/* Same content→content gap rule (34px) as the rest of the chapter; full text
+   width, same as the carousel. Bottom margin zeroed so the image→caption gap
+   below is owned solely by the caption's 6px top margin (the shared rule). */
+/* Border lives on this frame at the full text width (unchanged from before);
+   the image inside is padded 5px each side so it renders 10px smaller than
+   the frame/border, without moving or resizing the border itself. */
+.project__chapter-nhouse-frame {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 5px;
+  margin: 34px 0 0;
+  border-radius: 5px;
+  background: #333333; /* lighter grey behind the layout image */
+}
+
+.project__chapter-nhouse-img {
+  display: block;
+  width: 100%;
+}
+
+/* Arc 2 interaction demo: autoplaying looped video spanning the full text width. */
+.project__chapter-a2demo-video {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 12px;
+  border-radius: 5px;
+}
+
+/* Intro video sits directly under the tag, so give it the standard tag→content
+   gap (18px) instead of the title-follow gap the base class uses. */
+.project__chapter-introcr {
+  margin-top: 36px;
+}
+
+/* Prologue journal entry images (chapter 2, 02-02) — 4 across in one row, each
+   rounded with a caption below. 34px content→content gap above; 11.5px image→caption. */
+.project__chapter-prentries {
+  display: flex;
+  gap: 12px;
+  margin: 34px 0 0;
+}
+/* Scoped to the Prologue tag2 entry row only: 160px instead of the base 34px. */
+.project__chapter-prentries.project__chapter-prentries--wide-top {
+  margin-top: 160px;
+}
+.project__chapter-prentry {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+.project__chapter-prentry-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
+}
+/* 04-02 problem row: force a 16:9 box (crops apr2's baked-in black bars, keeps
+   all three equal height) with an orange "problem" frame. */
+.project__chapter-prentries--crop16 .project__chapter-prentry-img {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+/* apr2's baked-in black bars are asymmetric (164px top, 99px bottom), so its
+   16:9 content is not centred — shift the crop down to land exactly on it. */
+.project__chapter-prentries--crop16 .project__chapter-prentry:nth-child(3) .project__chapter-prentry-img {
+  object-position: center 62.5%;
+}
+/* Title sits directly above the row (owns the 12px title→content gap). */
+.shelf__title--prentries + .project__chapter-prentries {
+  margin-top: 0;
+}
+.project__chapter-prentry .project__chapter-caption {
+  margin-top: 11.5px;
+}
+/* Same image→caption gap as the other captions in this chapter (11.5px). */
+.project__chapter-a2demo-video + .project__chapter-caption {
+  margin-top: 11.5px;
+}
+
+/* Same image→caption gap as the other figure galleries (11.5px). */
+.project__chapter-mapgallery-figure .project__chapter-caption {
+  margin-top: 11.5px;
+}
+
+/* Character card fan: five cards on screen in an arc — the centred one upright,
+   largest and in front, the pairs either side rotated out, dropped and scaled
+   down by their distance from the middle. Slots are inline transforms written by
+   initCardFan; the rest of the deck waits one slot further out at zero opacity,
+   so turning the fan slides the next card in from the edge.
+
+   Every slot offset is a PERCENTAGE of the card's own box, so the arc scales
+   with the card and nothing needs measuring on resize. The fan takes the full
+   body column — NO width cap of its own, or retracting the panel would widen the
+   column and leave the fan behind at the narrow size.
+
+   The card is then sized to fill whichever column it has, which is why the two
+   panel states differ in card count, card width AND spacing (the last one set by
+   SPREAD in initCardFan): three cards across 920px, five across 1096px. A
+   rotated card is wider than its own box (26% at 12°), so the outermost one is
+   what sets the limit — it reaches 1.030 card-widths from the middle with three
+   up, 1.397 with five, against the 1.048 and 1.420 those percentages afford. Its
+   bottom lands 1.467 / 1.538 card-widths down, hence the two aspect ratios,
+   which also tie the fan's height to its width with no circular calc. */
+.card-fan {
+  position: relative;
+  width: 100%;                    /* follows the body column the panel resizes */
+  aspect-ratio: 100 / 71;
+  margin: 37px auto 30px;
+  /* Deliberately NOT clipped. The deck's off-screen cards park well outside the
+     visible fan — a parked card reaches ~1.55 card-widths from the middle
+     against the 1.05 the fan is wide, ~219px past each column edge — and one
+     slides through that gap on every drag, so clipping here would cut the card
+     off mid-slide. That spill is handled where it lands instead: the page is a
+     stacking context below the chapter panel, so cards pass BEHIND the panel on
+     the left, and .project-shell clips on the right rather than growing a
+     horizontal scrollbar. The bottom spill (~22px at most, and only ever on a
+     parked, invisible card) stays inside this element's 30px bottom margin. */
+  touch-action: pan-y;            /* vertical page scroll still wins on touch */
+}
+
+.fan-card {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 47.7%;
+  margin-left: -23.85%;           /* half the card's width → centred on the fan */
+  transform-origin: 50% 50%;      /* cards pivot about their own middle */
+  perspective: 1200px;            /* depth of the hover-flip — larger = subtler */
+  cursor: pointer;                /* a side card clicks straight to the middle */
+  transition: transform 0.46s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.46s ease;
+}
+
+/* Panel retracted: the column is ~176px wider, which is room for the outer pair.
+   Five narrower cards instead of three big ones — initCardFan watches this same
+   class for the matching count, so the two never disagree. */
+body.is-panel-collapsed .card-fan {
+  aspect-ratio: 100 / 55;
+}
+
+body.is-panel-collapsed .fan-card {
+  width: 35.2%;
+  margin-left: -17.6%;
+}
+
+.fan-card.is-centre {
+  cursor: grab;
+}
+
+.card-fan.is-dragging .fan-card {
+  cursor: grabbing;
+}
+
+/* Instant reposition: the first paint, and every frame of a drag (which drives
+   the transform directly rather than easing toward a slot). */
+.fan-card--noanim {
+  transition: none !important;
+}
+
+.fan-card__inner {
+  position: relative;
+  width: 100%;
+  transform-style: preserve-3d;   /* keep the two faces in 3D space */
+  transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* initCardFan adds is-flipped to the centre card after a beat of hover, and
+   strips it the moment the centre changes — so a card always arrives
+   face-front. Cards with no reverse artwork carry --noflip and never get it. */
+.fan-card.is-flipped .fan-card__inner {
+  transform: rotateY(180deg);
+}
+
+.fan-card__face {
+  display: block;
+  width: 100%;
+  height: auto;                   /* front sizes the card to the artwork ratio */
+  -webkit-user-drag: none;
+  user-select: none;
+  backface-visibility: hidden;    /* hide whichever face is turned away */
+  -webkit-backface-visibility: hidden;
+}
+
+/* Back is stacked over the front and pre-rotated so it reads correctly at 180°. */
+.fan-card__face--back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fan-card,
+  .fan-card__inner {
+    transition: none;
+  }
+}
+
+.project__chapter-heading {
+  font-family: "tondo", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+  -webkit-text-stroke: 0;          /* only the pixel face needs the fake-bold stroke */
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #1f1a14;
+  /* Base is the now-bar title's 1rem body font — the deck face renders at its
+     true em height, so no pixel-face size compensation — plus 8px. */
+  font-size: calc(1rem + 18px);
+  margin: 0 0 36px;
+}
+
+/* Same pill as the "NOW PLAYING · TRACK 01" tag (.np-player__nowplaying),
+   shown below a chapter heading when that chapter sets one. */
+.project__chapter-tag {
+  /* Block-level (not inline-flex) so the pill sits on its own line with exact,
+     predictable vertical margins. An inline-flex tag's baseline made margin-top
+     render as an unpredictable gap; a plain block's margins collapse cleanly
+     with adjacent block siblings, so the tag→content / content→tag rules hold
+     exactly (the larger of the two adjoining margins wins). width:fit-content
+     keeps the pill hugging its text like the old inline-flex box did. */
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  text-align: center;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  font-family: "tondo", sans-serif;
+  font-size: 19px;
+  letter-spacing: normal;
+  text-transform: uppercase;
+  color: #0caaa2;
+  font-weight: 700;
+  line-height: 1;
+  margin: 6px 0 23.3px;
+}
+
+/* Title (same style as "Arc 2 Assets Closeup") + 3 square placeholders below
+   it — same dashed-box look as .track__icon's placeholder state. Block's own
+   top margin follows the content→content rule (34px, same as .shelf-block);
+   the title's margin-bottom (from .shelf__title) owns the title→row gap. */
+.project__chapter-square-placeholders-block {
+  margin: 34px 0 0;
+}
+
+.project__chapter-square-placeholders {
+  display: flex;
+  gap: 20px;
+}
+
+.project__chapter-square-placeholder {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #e8e8e8;
+  border: 1px dashed var(--color-muted);
+  border-radius: 8px;
+}
+
+.project__chapter-tag--below-gallery {
+  margin-top: 75px;
+  margin-bottom: 23px;
+}
+
+.project__chapter-image2 {
+  display: block;
+  width: 100%;
+  margin: 0;
+}
+
+.project__chapter-description {
+  font-size: 19px;
+  line-height: 1.6;
+  color: #424242;
+  margin: 0 0 20px;
+}
+
+/* Plain body text with a highlighted background — NOT a pill tag: no border,
+   no letter-spacing/uppercase tag styling, just regular paragraph text
+   (inherits .project__chapter-description's size/weight/color) sitting on a
+   softly-rounded fill, using the "now playing" tag's fill color
+   (.np-player__nowplaying). Declared after the base rule so its margin wins
+   despite equal (single-class) specificity. */
+.project__chapter-description--label {
+  display: inline-block;
+  background: transparent;
+  border-radius: 6px;
+  padding: 0;
+  margin: 0 0 5px;
+  font-size: 19px;
+  color: #0caaa2;
+}
+
+/* ── Quote callouts (research citations) ─────────────────────────────────
+   Left-accent card: big opening quote mark, quote text, then author +
+   research title stacked underneath. Every chapter is rendered up front into
+   one continuous scroll (see chapterBodyHtml), so an on-load CSS animation
+   would already be finished by the time a reader scrolls this far — instead
+   initQuoteCallouts (main.js) adds .is-visible via IntersectionObserver as
+   each card scrolls into view, and transition-delay (staggered by nth-child)
+   is what makes the three fade up as a sequence rather than all at once. */
+.project__chapter-quotecallout-group {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin: 0;
+}
+
+.project__chapter-quotecallout {
+  margin: 0;
+  border-left: 5.5px solid #0caaa2;
+  background: #eaf7f6;
+  border-radius: 4px;
+  padding: 17px 21px 15px;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s var(--ease-standard), transform 0.6s var(--ease-standard);
+}
+
+.project__chapter-quotecallout.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.project__chapter-quotecallout:nth-child(1).is-visible { transition-delay: 0s; }
+.project__chapter-quotecallout:nth-child(2).is-visible { transition-delay: 0.15s; }
+.project__chapter-quotecallout:nth-child(3).is-visible { transition-delay: 0.3s; }
+
+.project__chapter-quotecallout-mark {
+  display: block;
+  font-family: "tondo", sans-serif;
+  font-size: 2.5rem;
+  line-height: 1;
+  color: #0caaa2;
+  margin-bottom: -8px;
+}
+
+.project__chapter-quotecallout-text {
+  margin: 0 0 19px;
+  font-size: 19px;
+  line-height: 1.6;
+  color: #1a1a1a;
+}
+
+.project__chapter-quotecallout-attribution {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.project__chapter-quotecallout-author {
+  font-size: 15px;
+  color: #0caaa2;
+  font-weight: 600;
+}
+
+.project__chapter-quotecallout-research {
+  font-size: 15px;
+  color: #0caaa2;
+  font-style: italic;
+}
+
+/* Two subtitles stacked in the same group (no carousel between them): 20px
+   more than the standard 20px paragraph→paragraph gap, so the second subtitle
+   still reads as a new beat rather than a continuation of the first. Explicit
+   class, not a :has() structural match — a :has()-based selector matched ANY
+   subtitle-paragraph followed by another one, including a genuine group1→
+   group2 transition (which also happens to be subtitle-paragraph →
+   subtitle-paragraph) — and outranked the .project__chapter-description--
+   group-gap rule below by specificity, silently overriding 69px down to 40px
+   on every such transition. */
+.project__chapter-description--subtitle-pair {
+  margin-top: 40px;
+}
+/* Paragraph text that follows a subtitle, scoped so only THOSE paragraphs get
+   the darker shade — the subtitle span itself keeps its own explicit #444
+   (declared on .project__chapter-description--flaw-subtitle), and every other
+   plain paragraph in the chapter stays at the base #444. */
+.project__chapter-description:has(.project__chapter-description--flaw-subtitle) {
+  color: #3d3d3d;
+}
+
+/* Chapter 1 (01-4): pro/con evaluation cards for the dialogue approaches.
+   Each card is a titled block split into a Pros column (tick icons) and a
+   Cons column (cross icons). Two columns per row on wide screens, stacking
+   on narrow ones. */
+.voice-eval {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  margin: 0 0 20px;
+}
+.voice-eval__card {
+  border: none;
+  border-radius: 12px;
+  padding: 14px 15px;
+  background: #f2fbfb;
+}
+.voice-eval__name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #222;
+  margin: 0 0 12px;
+}
+.voice-eval__cols {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 22px;
+}
+.voice-eval__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.voice-eval__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: #444;
+  margin: 0 0 10px;
+}
+.voice-eval__item:last-child {
+  margin-bottom: 0;
+}
+.voice-eval__icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-top: 1px;
+  color: #fff;
+}
+.voice-eval__icon--pro {
+  background: #3aa76d;
+}
+.voice-eval__icon--con {
+  background: #d15a4a;
+}
+@media (max-width: 460px) {
+  .voice-eval {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Chapter 1 (01-5): character-voice tracklist. A music-player-style card —
+   selectable rows plus a footer transport bar driven by one shared <audio>
+   (see initVoiceTracklist). Rows are full-bleed so the active highlight runs
+   edge to edge. */
+.vtrack {
+  border: 1px solid #ececec;
+  border-radius: 16px;
+  background: #fff;
+  overflow: hidden;
+  max-width: calc(100% - 550px);
+  margin: 0 auto 6px;               /* same image→caption gap as the rest of the chapter (6px) */
+}
+.vtrack__list {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+}
+.vtrack__row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 18px;
+  padding: 10px 22px;
+  cursor: pointer;
+  border-top: 1px solid #efefef;
+  transition: background 0.15s ease;
+}
+.vtrack__row:first-child {
+  border-top: none;
+}
+.vtrack__row:hover {
+  background: #f7f7f7;
+}
+.vtrack__row--active,
+.vtrack__row--active:hover {
+  background: #f2fbfb;
+}
+.vtrack__play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 27.5px;
+  height: 27.5px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  border: 1.5px solid #d3d3d8;
+  background: transparent;
+  color: #555;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.vtrack__play:hover {
+  border-color: #b9b9c0;
+}
+.vtrack__row--active .vtrack__play {
+  background: #0caaa2;
+  border-color: #0caaa2;
+  color: #fff;
+}
+.vtrack__text {
+  min-width: 0;
+}
+.vtrack__name {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: #1a1a1a;
+  line-height: 1.3;
+}
+.vtrack__dur {
+  font-size: 0.8rem;
+  color: #9a9aa0;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+/* Play / pause glyph swap: play by default, pause on the actively-playing row
+   and the footer transport while audio is running. */
+.vtrack__ic--pause {
+  display: none;
+}
+.vtrack.is-playing .vtrack__row--active .vtrack__ic--play {
+  display: none;
+}
+.vtrack.is-playing .vtrack__row--active .vtrack__ic--pause {
+  display: inline;
+}
+@media (max-width: 520px) {
+  .vtrack__row { padding: 9px 14px; gap: 14px; }
+  .vtrack__play { width: 23.5px; height: 23.5px; }
+}
+
+/* Same content→content gap rule (34px) as the rest of the chapter. */
+.project__chapter-description--below-wgallery {
+  margin-top: 34px;
+}
+
+/* Shared small caption style — same look as .scrubcar__caption /
+   .project__chapter-placeholder-caption, reused for standalone captions like
+   the furniture image's. Declared right after the base description rule so
+   any --below-* spacing modifier applied alongside it (declared later in the
+   file) wins the cascade for margin-top. */
+.project__chapter-caption {
+  font-size: 15px;
+  color: var(--color-muted);
+  text-align: center;
+  margin: 0;
+}
+
+/* Same image→caption gap as the other figure galleries (11.5px). */
+.project__chapter-description--below-nhouse {
+  margin-top: 11.5px;
+}
+
+/* Same content→content gap rule (34px) as the rest of the chapter. */
+.project__chapter-description--below-objgallery {
+  margin-top: 34px;
+}
+
+/* Same content→content gap rule (34px), here for the vtrack caption→text gap. */
+.project__chapter-description--below-vtrack-caption {
+  margin-top: 140px;
+}
+
+/* ── Object shelf ──────────────────────────────────────────────────────────
+   One horizontally-scrolling row of object shots. The shelf spans the text
+   column; the track grows past it (width:max-content) so it scrolls sideways,
+   and every image shares a bottom baseline (align-items:flex-end). 69px top
+   margin — the group→group gap — since the paragraph above it leads with
+   its own subtitle. */
+.shelf-block {
+  margin: 69px 0 0;
+}
+
+.shelf__title {
+  font-family: "tondo", sans-serif;
+  font-size: 19px;
+  letter-spacing: normal;
+  font-weight: 500;
+  color: #0caaa2;
+  margin: 0 0 12px;
+}
+
+/* Hidden in place — its text is read by initHoverTitleTooltips and shown as
+   a cursor-following label instead (see .hover-title-tooltip). */
+.hover-title {
+  display: none;
+}
+
+/* One shared floating label, reused across every .hover-title section.
+   Follows the cursor via inline left/top set on mousemove; fixed positioning
+   keeps it correct regardless of scroll. */
+.hover-title-tooltip {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  pointer-events: none;
+  transform: translate(16px, -50%);
+  font-family: "tondo", sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: #0caaa2;
+  background: #fff;
+  padding: 4.5px 14.75px;
+  border: 1.5px solid #41c1ce;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.hover-title-tooltip.is-visible {
+  display: block;
+}
+
+/* The padding lives on the outer box; the scroll (and its scrollbar) live on
+   the inner .shelf__scroll. The border itself is drawn by ::after, positioned
+   on top in paint order (it comes after .shelf__scroll in the DOM) — so it
+   always renders in front of the scrollbar instead of the scrollbar visually
+   sitting on top of it. */
+.shelf {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px 0 0;
+  border-radius: 8px;
+}
+
+.shelf::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: none;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+/* Left/right padding lives on the scroll area itself (not the track), so it
+   only ever shows as lead-in/trail-out space before the first image and after
+   the last — it never opens a gap between images, since that's the track's
+   own `gap`. */
+.shelf__scroll {
+  overflow-x: scroll;              /* always scrollable, not just on overflow */
+  /* Bottom = 7px caption→scrollbar gap + 8px for the bar itself. macOS overlay
+     scrollbars (Safari / "show when scrolling") ignore ::-webkit-scrollbar and
+     paint ON TOP of the bottom 8px of content instead of taking layout space —
+     so that 8px must be reserved here or the bar overlaps the caption. */
+  padding: 0 16px 15px;
+  /* Firefox: keep a thin, always-present scrollbar. */
+  scrollbar-width: thin;
+}
+
+/* WebKit (Chrome/Safari): style the bar so it's a classic, always-visible
+   scrollbar instead of the macOS overlay bar that auto-hides. */
+.shelf__scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.shelf__scroll::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 999px;
+}
+
+.shelf__scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.28);
+  border-radius: 999px;
+}
+
+.shelf__track {
+  display: flex;
+  /* Top-align the figures instead of bottom-aligning them: every image is a
+     fixed 220px tall, so top-aligning already puts them on the same baseline —
+     but unlike flex-end, a longer caption then just grows the figure downward
+     instead of stretching the whole figure and pushing its image upward. */
+  align-items: flex-start;
+  gap: 57px;                        /* was 45px, +12px */
+  width: max-content;              /* track is as wide as its items → scrolls */
+}
+
+.shelf__item {
+  flex: none;
+  /* min-content (not the flex-item default of shrink-to-fit/max-content) caps
+     the item at the image's own width — the image can't shrink below it, so a
+     long caption wraps to that width instead of stretching the item wider. */
+  width: min-content;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Uniform height gives the shared baseline; width follows each source ratio. */
+.shelf__img {
+  display: block;
+  height: 220px;
+  width: auto;
+  border-radius: 4px;
+}
+
+/* Poster pair: a 2-column grid. Row 1 = the two images, row 2 = each image's
+   own 1st caption, row 3 = a single 2nd caption spanning both columns. row-gap
+   is 0 so the spacing comes purely from the captions' own margins (8px on the
+   1st, -0.7px on the 2nd) — the exact same margins every other shelf item uses,
+   so the 1st→2nd caption gap here is identical to theirs. width:min-content
+   hugs the two images so the spanning caption wraps within their combined
+   width. */
+.shelf__item--pair {
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: 57px;                 /* same as the track's between-item gap */
+  row-gap: 0;
+  justify-items: center;
+  align-items: start;
+  width: min-content;
+}
+
+/* 1st captions stay on one line so both columns are the same height; auto width
+   lets each size to its text and center under its image. These are <p> tags
+   (the normal items use <figcaption>, which has no UA margin) — margin must
+   zero the UA's default 1em bottom margin, or it inflates the grid row and
+   pushes the shared 2nd caption ~14px lower than items 1–3. */
+.shelf__item--pair > .shelf__caption:not(.shelf__caption--sub) {
+  white-space: nowrap;
+  width: auto;
+  margin: 8px 0 0;
+}
+
+/* The shared 2nd caption spans both image columns. */
+.shelf__item--pair > .shelf__caption--sub {
+  grid-column: 1 / -1;
+}
+
+.shelf__caption {
+  width: 100%;                     /* wrap within the item's (image-matched) width */
+  box-sizing: border-box;
+  font-size: 15px;
+  color: #0caaa2;
+  text-align: center;
+  /* Bottom must be 0: these are mostly <p> tags, whose UA 1em bottom margin
+     would otherwise inflate the tallest item and eat into the scroll area's
+     fixed 7px caption→scrollbar padding. */
+  margin: 8px 0 0;
+}
+
+/* Second caption line — muted, tight gap under the first. */
+.shelf__caption--sub {
+  color: var(--color-muted);
+  margin-top: -0.7px;
+  line-height: calc(1.5em - 4.2px);   /* base 1.5 line-height, -4.2px */
+}
+
+/* Same image→caption gap as the other captions in this chapter (11.5px). */
+.project__chapter-description--below-furniture {
+  margin-top: 11.5px;
+}
+
+/* Same tag→text gap as Character Design's tag1 (11.3px, the tag's own
+   margin-bottom) — used where the chapter has no tag of its own. */
+.project__chapter-description--below-tag {
+  margin-top: 11.3px;
+}
+
+/* Static spatial-plan image (nplan1). Top margin 0 so the tag→image gap is
+   owned by the tag's own 23.3px margin-bottom. */
+.project__chapter-nplan {
+  width: 100%;
+  margin: 0 auto 18px;
+}
+
+.project__chapter-nplan-img {
+  display: block;
+  width: 80%;
+  height: auto;
+  margin: 0 auto;
+}
+
+.project__chapter-nplan-caption {
+  margin-top: 11.5px;
+}
+
+/* Second caption line under nplan1 — tight gap from the caption above it. */
+.project__chapter-nplan-caption--note {
+  margin-top: 2px;
+}
+
+/* Same image→caption gap as the other captions in this chapter (11.5px). */
+.project__chapter-objgallery-caption {
+  margin-top: 11.5px;
+}
+
+/* Same text↔image gap rule as tag1 (34px). */
+.project__chapter-description--below-placeholders {
+  margin-top: 34px;
+  /* Zeroed so the text→scrubber gap is owned solely by .scrubcar's 34px top
+     margin — matching the images→text (34px) gap above it. */
+  margin-bottom: 0;
+}
+
+/* Same content→content gap rule (34px), here for the 01-6 gallery→text gap.
+   The block above has no bottom margin, so this owns the whole gap. Bottom
+   zeroed too, so the text→2nd-gallery gap below is owned solely by that
+   gallery block's own 34px top margin instead of stacking with this one. */
+.project__chapter-description--below-translate-gallery {
+  margin-top: 140px;
+  margin-bottom: 0;
+}
+
+/* Image2 → text gap matches the tag1 description → gallery gap (34px). */
+/* Image2→text gap matches the tag3-text→images gap (34px). */
+.project__chapter-description--below-image2img {
+  margin-top: 34px;
+}
+
+/* Same image→text gap rule (34px), here for the carousel→text gap. */
+.project__chapter-description--below-carousel {
+  margin-top: 34px;
+}
+/* Group → group: the between-groups gap, layered on top of whichever base
+   spacing class (--below-carousel, --below-tag3, …) the paragraph already
+   carries. The extra class keeps every OTHER use of that base class at its
+   own value; the two-class combo beats either alone regardless of source
+   order, so this wins no matter which base rule it's paired with. */
+.project__chapter-description--below-carousel.project__chapter-description--group-gap,
+.project__chapter-description--below-tag3.project__chapter-description--group-gap,
+.project__chapter-description--below-wgallery.project__chapter-description--group-gap {
+  margin-top: 69px;
+}
+
+/* Flaw subtitle: the lead sentence of the paragraph — same <p> as the body
+   text that follows (one paragraph), but block-level so it still reads as its
+   own line rather than running into the text after it. 3.5px bigger than the
+   rest of the paragraph's text; color inherits from .project__chapter-description. */
+/* Small numbered circle leading the subtitle sentence. */
+.project__chapter-step-badge {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  padding: 0;
+  margin-right: 8px;
+  border: none;
+  border-radius: 50%;
+  background: #ebebf7;             /* same fill as the "now playing" tag (.np-player__nowplaying) */
+  color: #fc9b7a;                  /* that tag's own text color — white wouldn't read on this light fill */
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  /* Tight line-height keeps the text's own line box close to the glyph size,
+     leaving the flex box's align-items/justify-content free to actually do
+     the centering against the full 22px circle — pinning line-height to the
+     box height (a previous attempt) fills the circle with the text's line
+     box and leaves nothing for flex to center, so the glyph's position ends
+     up decided by the font's own (usually asymmetric) ascent/descent split
+     instead. */
+  line-height: 1;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.project__chapter-description--flaw-subtitle {
+  display: block;
+  color: #000000;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 6.5px;
+}
+
+/* Numbered-step subtitles (badge + text, e.g. "1 Node Treatment") match the
+   already-converted ones (Node Treatment, Pictograms & Symbols, Bilingual
+   Conventions): no visible number, uppercase, teal, smaller. */
+.project__chapter-description--flaw-subtitle:has(.project__chapter-step-badge) {
+  text-transform: uppercase;
+  color: #0caaa2;
+  font-size: 19px;
+}
+.project__chapter-description--flaw-subtitle .project__chapter-step-badge {
+  display: none;
+}
+
+/* Proximity-prompt comparison (chapter 4, 04-03): two images side by side, each
+   captioned. 23px tag→content above; 11.5px image→caption. */
+.project__chapter-prompts {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+/* A prompts row following a paragraph gets the 34px content→content gap; the
+   first row (right after the tag) keeps the tag's own 23px gap. */
+.project__chapter-description + .project__chapter-prompts {
+  margin-top: 34px;
+}
+/* Each group's own paragraph→carousel gap: 7px tighter than the standard
+   34px content→content gap above it. Specificity (two classes + the sibling
+   combinator) beats the plain rule above regardless of source order. */
+.project__chapter-description + .project__chapter-prompts.project__chapter-prompts--tight-top {
+  margin-top: 27px;
+}
+.project__chapter-prompt {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+.project__chapter-prompt-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  box-sizing: border-box;
+  border-radius: 5px;
+}
+.project__chapter-prompt .project__chapter-caption {
+  margin-top: 11.5px;
+}
+
+/* PROBLEM / SOLUTION heading above each comparison image. */
+.project__chapter-prompt::before {
+  font-family: "tondo", sans-serif;
+  font-size: 17px;
+  text-transform: none;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #0caaa2;
+}
+.project__chapter-prompt:nth-child(1)::before {
+  content: "Problem";
+}
+.project__chapter-prompt:nth-child(2)::before {
+  content: "Solution";
+}
+
+.project__chapter-prompt:nth-child(1) .simplecar__dot.is-active,
+.project__chapter-prompt:nth-child(2) .simplecar__dot.is-active {
+  background: #0caaa2;
+  border-color: #0caaa2;
+}
+
+/* A carousel occupying one comparison cell: fills the column at 16:9, rounded to
+   match the static image beside it. The mask forces the rounded clip onto the
+   transform-animated slides (Safari won't via overflow:hidden alone). */
+.project__chapter-promptcar {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 5px;
+  overflow: hidden;
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  mask-image: radial-gradient(white, black);
+  isolation: isolate;
+}
+.project__chapter-promptcar .simplecar {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+
+/* Original-map carousel (metro, Iteration Process): always 100px narrower
+   than the text column, in BOTH panel states — calc(100% - 100px) tracks
+   the column's own width (920px expanded / 1096.4px retracted) rather than
+   a fixed px value, so it stays 100px inset either way instead of matching
+   one state and overflowing/underflowing the other. .project__chapter-prompt
+   is a flex column (align-items defaults to stretch), so the narrower
+   .promptcar needs align-items:center on the figure to sit centered rather
+   than hugging the left edge — this also centers the caption/dots below it. */
+.project__chapter-prompt--orimap {
+  align-items: center;
+}
+.project__chapter-prompt--orimap .project__chapter-promptcar {
+  width: calc(100% - 100px);
+}
+
+/* Takeaway row: 3 images side by side, each rounded and overlapping the next
+   by 28px (negative margin + rising z-index so later images sit on top).
+   flex-grow is each image's real aspect ratio (width/height) with
+   flex-basis:0, so — same technique as the other equal-height image rows —
+   every image comes out the same height despite differing native ratios. */
+.project__chapter-takeaway-row {
+  display: flex;
+}
+.project__chapter-takeaway-img {
+  display: block;
+  flex-basis: 0;
+  min-width: 0;
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+/* White backing behind the middle image, so it reads as its own card where it
+   overlaps its neighbors instead of blending into them. Horizontal-only
+   offset shadows (no spread) so the white fill matches the image's exact
+   height and corner radius, instead of a spread shadow that would extend
+   past the top/bottom edges and look taller than the other two images. */
+.project__chapter-takeaway-img:nth-child(2) {
+  background: #fff;
+  box-shadow: -8px 0 0 0 #fff, 8px 0 0 0 #fff, 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+.project__chapter-takeaway-img + .project__chapter-takeaway-img {
+  margin-left: -28px;
+}
+/* Scroll-triggered reveal: the 2nd and 3rd cards swipe in from the right,
+   one after another; the 1st stays put with no animation. initTakeawayReveal
+   (main.js) adds .is-visible to the row via IntersectionObserver the first
+   time it scrolls into view; the transition-delay on the 3rd card is what
+   staggers it a beat behind the 2nd instead of both arriving at once. */
+.project__chapter-takeaway-row .project__chapter-takeaway-img:nth-child(2),
+.project__chapter-takeaway-row .project__chapter-takeaway-img:nth-child(3) {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.5s var(--ease-standard), transform 0.5s var(--ease-standard);
+}
+.project__chapter-takeaway-row.is-visible .project__chapter-takeaway-img:nth-child(2),
+.project__chapter-takeaway-row.is-visible .project__chapter-takeaway-img:nth-child(3) {
+  opacity: 1;
+  transform: translateX(0);
+}
+.project__chapter-takeaway-row.is-visible .project__chapter-takeaway-img:nth-child(3) {
+  transition-delay: 0.2s;
+}
+
+/* Node treatment row (metro, Visual Precedent Analysis): 4 images side by
+   side, each with its own 2-line caption. All four share the same native
+   ratio, so equal flex-grow on the figures gives the images equal width and
+   height automatically — no overlap this time, just a plain gapped row with
+   slightly rounded corners. */
+.project__chapter-nt-row {
+  display: flex;
+  gap: 20px;
+}
+.project__chapter-nt-figure {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 0;
+  min-width: 0;
+  margin: 0;
+}
+.project__chapter-nt-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+.project__chapter-nt-figure .project__chapter-caption {
+  margin-top: 11.5px;
+  font-size: 15px;
+  color: #424242;
+}
+.project__chapter-nt-figure .project__chapter-caption + .project__chapter-caption {
+  margin-top: 2px;
+  font-size: 15px;
+}
+/* Fabrication photo wall (Malibu-Baddie, chapter 01) — pinned polaroid cards
+   tiled as justified rows, same sizing trick as the old collage: each card's
+   flex-grow is its own image's w/h ratio with flex-basis:0, so every photo in
+   a row lands at the SAME height, uncropped (width 100%, height auto — no
+   object-fit crop), edge to edge. Only a hairline gap separates cards, so the
+   wall reads as touching tiles, not a gapped grid. No page-spanning dark
+   backdrop — the wall just sits on the page's own white background.
+   Resting, each card holds its own slight rotation and its caption sits
+   parked just off the bottom edge (clipped by the paper's overflow:hidden);
+   on hover it straightens, scales up 1.1x, jumps above its neighbours (the
+   !important pair below is what lets a plain :hover rule beat each card's
+   own inline rotation/z-index), and the caption — a solid full-width strip,
+   not a fade — slides up into view on the same 0.35s timing as the
+   straighten/scale, so it reads as one motion instead of two. */
+.robotwall {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.robotwall__row {
+  display: flex;
+  gap: 1px;
+}
+.robotwall__card {
+  position: relative;
+  flex-basis: 0;
+  min-width: 0;
+  z-index: 1;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+.robotwall__card:hover {
+  transform: rotate(0deg) scale(1.1) !important;
+  z-index: 50 !important;
+}
+/* Pushpin head, not a flat dot: a teal sphere gradient that darkens toward
+   the rim, plus inset shading top/bottom for roundness and a soft cast
+   shadow so it reads as pinned into the paper rather than painted on it. */
+.robotwall__pin {
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #7fdad2 0%, #0caaa2 50%, #086d66 100%);
+  box-shadow:
+    inset 0 -2px 2px rgba(0, 0, 0, 0.35),
+    inset 0 1px 1px rgba(255, 255, 255, 0.55),
+    0 3px 5px rgba(0, 0, 0, 0.4),
+    0 1px 2px rgba(0, 0, 0, 0.3);
+  z-index: 2;
+}
+.robotwall__paper {
+  position: relative;
+  overflow: hidden;                /* clips the caption's slide-up strip until hover pulls it into view */
+  background: oklch(0.97 0.01 60);
+  padding: 8px;
+  box-shadow: 0 10px 24px -6px oklch(0 0 0 / 0.55);
+  transition: box-shadow 0.35s ease;
+}
+.robotwall__card:hover .robotwall__paper {
+  box-shadow: 0 30px 60px -8px oklch(0 0 0 / 0.65);
+}
+.robotwall__photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0;
+}
+.robotwall__caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: oklch(0.97 0.01 60);   /* solid — sits on top of the photo, not blended into it */
+  padding: 8px;
+  transform: translateY(100%);       /* parked just below the paper's clipped edge, out of view */
+  transition: transform 0.35s ease;  /* same duration as .robotwall__card's transform, so the slide-up and the straighten/scale read as one motion */
+}
+.robotwall__card:hover .robotwall__caption {
+  transform: translateY(0);
+}
+.robotwall__desc {
+  margin: 0;
+  font-family: "tondo", sans-serif;
+  font-size: 13px;
+  color: oklch(0.4 0.01 330);
+}
+
+/* Panel collapsed → page is WIDER, so the caption gets a touch more size too. */
+body.is-panel-collapsed .robotwall__desc {
+  font-size: 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .robotwall__card,
+  .robotwall__paper,
+  .robotwall__caption {
+    transition: none;
+  }
+}
+
+/* Tag 3's own pill was removed (content kept), so this paragraph no longer
+   collapses against a tag's margin-bottom for its top gap — it now follows
+   the previous section's paragraph directly, so it gets the standard 34px
+   content→content gap instead. */
+.project__chapter-description--below-tag3 {
+  margin-top: 34px;
+}
+
+/* Wraps the subtitle + image row and sizes to their content width, centered
+   as a group — so the subtitle can left-align to the row's actual left edge
+   instead of the (wider) page column. */
+.project__chapter-placeholders-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Text→images gap matches the tag1 text→gallery gap: gallery's own 34px top
+     margin, on top of the description's shared 20px bottom margin. Bottom is 0
+     so the images→text gap is owned solely by the following text's margin-top. */
+  margin: 34px 0 0;
+}
+/* Scoped to the sound-combos gallery under "Mapping audio samples...": 20px
+   instead of the standard 34px, so it collapses with the paragraph's own
+   20px bottom margin rather than overriding it. */
+.project__chapter-placeholders-block--tight-top {
+  margin-top: 0;
+}
+
+/* Images→text gap matches the tag2 image2→text gap (34px). */
+.project__chapter-description--below-placeholders {
+  margin-top: 34px;
+  /* Zeroed so the text→scrubber gap is owned solely by .scrubcar's 34px top
+     margin — matching the images→text (34px) gap above it. */
+  margin-bottom: 0;
+}
+
+/* Scrubber→text gap doubled to 54px (.scrubcar's bottom margin is 0). */
+.project__chapter-description--below-scrubcar {
+  /* Group → next content: same 69px as the group1→group2 gap elsewhere. */
+  margin-top: 140px;
+  /* Zeroed so the text→sprites gap is owned solely by the image's 34px top. */
+  margin-bottom: 0;
+}
+
+/* Full-width sprites sheet; 34px text→image gap per the spacing rule.
+   Border lives on this frame; the image is padded 6px each side so it
+   renders 12px smaller than the frame/border, without resizing the border
+   itself (same pattern as .project__chapter-furniture-frame). */
+.project__chapter-sprites-frame {
+  width: 100%;
+  margin: 34px 0 0;
+  box-sizing: border-box;
+  padding: 6px;
+  border: none;
+  border-radius: 5px;
+}
+
+.project__chapter-sprites {
+  display: block;
+  width: 100%;
+  margin: 0;
+}
+
+/* 3 images, same height, laid out in a row within the centered block. */
+.project__chapter-placeholders {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  gap: 46px;                       /* +10px, +15px, -10px, +15px */
+}
+
+/* Character Design's 3-image pipeline row: stretched to fill the full text
+   column at equal height. flex-grow is set per-figure (inline, in JS) to each
+   image's natural width — since all 3 source images share one height, growing
+   in proportion to width keeps the row at equal height while filling 100%. */
+.project__chapter-placeholder-figure--fill {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.project__chapter-placeholder-box.project__chapter-placeholder-box--fill {
+  width: 100%;
+  height: auto;
+}
+
+.project__chapter-placeholders-subtitle {
+  align-self: flex-start;          /* left-aligned to the row, not the page column */
+  font-family: "tondo", sans-serif;
+  font-size: 19px;
+  letter-spacing: normal;
+  font-weight: 500;
+  color: #0caaa2;
+  margin: 0 0 8px;
+}
+
+/* ── Scrubber carousel ────────────────────────────────────────────────────
+   A slide stage + a draggable rail with discrete stops (one per slide).
+   Text→carousel gap follows the established 34px rule. */
+/* Full width of the text column — the image row below now stretches to fill
+   it too, so the title (a plain flush-left block) and the image row's left
+   AND right edges all land on the column's edges together automatically. */
+.scrubcar-group {
+  width: 100%;
+}
+/* Keep the carousel at its panel-expanded size (the page's base 920px)
+   instead of growing along with the wider, panel-collapsed page. */
+body.is-panel-collapsed .scrubcar-group {
+  width: 920px;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+/* The title above this (.shelf__title--scrubcar) is a .hover-title now —
+   display:none, so it contributes nothing to layout. This margin-top owns
+   the paragraph→carousel gap that the title used to be responsible for. */
+.scrubcar {
+  margin: 140px 0 0;
+}
+.shelf__title--scrubcar {
+  text-align: left;
+}
+
+/* All slides stack in one grid cell so the stage sizes to the tallest slide
+   and slides can crossfade in place. */
+.scrubcar__stage {
+  display: grid;
+}
+
+.scrubcar__slide {
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease;
+}
+
+.scrubcar__slide.is-active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Each slide is a rounded container holding 3 images, now stretched to span
+   the full text column (width:100%, replacing the old width:max-content that
+   shrank it to exactly fit the 3 gifs). gap is a FLOOR — justify-content:
+   space-between spends any leftover width as extra space between the images
+   instead of stretching the images themselves, so each gif keeps its own
+   natural size and only the spacing grows. The scrubber below no longer
+   matches this width (see .scrubcar__scrubber) — it keeps its own fixed size. */
+.scrubcar__imgs {
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  gap: 46px;
+  width: 100%;
+  padding: 22px;
+  border: none;
+  border-radius: 12.5px;           /* -3.5px */
+  background: #fff;
+}
+
+/* Stops 1 & 2 only: 80px more gap than the base 46px. Since each gif's width
+   is flex-grow filling the row (not fixed), the extra gap comes out of the
+   images' own share of the width automatically — they scale down to match. */
+.scrubcar__imgs--wide-gap {
+  gap: 134px;
+}
+
+.scrubcar__caption {
+  font-size: 15px;
+  color: var(--color-muted);
+  margin: 11.5px 0 0;
+  text-align: center;
+}
+
+/* flex-grow is set per-image (inline, in JS) to that gif's own width/height
+   ratio, so the 3 gifs in a row scale up together to fill 100% of the row at
+   equal height, rather than staying at a fixed size with the extra room
+   pushed into the gaps between them. */
+.scrubcar__img {
+  display: block;
+  flex: 1 1 0;
+  min-width: 0;
+  width: 100%;
+  height: auto;
+}
+
+.scrubcar__img-box {
+  width: 140px;
+  height: 140px;
+  border: 2px dashed var(--color-muted);
+  border-radius: var(--radius-sm);
+  background: #f0f0f0;
+}
+
+/* Centered under the gifs; JS sets its width to match the 3-gif row exactly. */
+/* Fixed at its previous JS-measured width (matching the un-stretched image
+   row) rather than the image row's new full-column width — the image row
+   spans the whole text column now, but the scrubber stays the size it was. */
+.scrubcar__scrubber {
+  width: 500px;
+  max-width: 100%;
+  margin: 10px auto 0;
+}
+
+.scrubcar__track {
+  position: relative;
+  height: 20px;
+  cursor: pointer;
+  touch-action: none;             /* let the knob drag without page-scrolling */
+  user-select: none;
+}
+
+.scrubcar__line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 6px;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.10);
+  border-radius: 999px;
+}
+
+/* Mint fill from the rail start up to the knob (JS drives the width). */
+.scrubcar__fill {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 0;
+  height: 6px;
+  transform: translateY(-50%);
+  background: #0caaa2;
+  border-radius: 999px;
+  transition: width 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* Discrete stop markers (JS sets each one's left %). */
+.scrubcar__tick {
+  position: absolute;
+  top: 50%;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border: 1.8px solid #888;        /* darker grey than the light grey track */
+  box-sizing: border-box;
+}
+
+/* Stops the knob has passed → solid mint (knob outline color), no border. */
+.scrubcar__tick.is-passed {
+  background: #0caaa2;
+  border: none;
+}
+
+/* Draggable knob — mint fill + mint outline (same as the tag outline). */
+.scrubcar__knob {
+  position: absolute;
+  top: 50%;
+  left: 0;                        /* JS drives this */
+  width: 23px;
+  height: 23px;
+  padding: 0;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: #0caaa2;
+  border: 1.8px solid #0caaa2;
+  box-sizing: border-box;
+  cursor: grab;
+  z-index: 2;
+  transition: left 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* Small white dot in the middle of the knob. */
+.scrubcar__knob::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #fff;
+  transform: translate(-50%, -50%);
+}
+
+.scrubcar__knob:active {
+  cursor: grabbing;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrubcar__slide,
+  .scrubcar__knob {
+    transition: none;
+  }
+}
+
+.project__chapter-placeholder-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+}
+
+.project__chapter-placeholder-caption {
+  font-size: 15px;
+  color: var(--color-muted);
+  margin-top: 11.5px;
+  text-align: center;
+}
+
+.project__chapter-placeholder-box {
+  display: block;
+  height: 220px;
+  width: auto;
+  border-radius: var(--radius-sm);
+  border: none;
+}
+
+/* Speech-to-sound translation (01-6): 4 images in one row instead of the
+   usual 3, so the shared 220px height would overflow the text column — sized
+   down to fit b/ba/p/pb's combined natural widths within it. */
+.project__chapter-placeholder-box--translate {
+  height: 148px;
+}
+
+.project__chapter-placeholder-box--translate-small {
+  height: 101px;                    /* p/pb: 47px shorter than the 148px default */
+}
+
+/* Wider image gap for this row only, so the base 3-image gap (31px) used
+   elsewhere (Character Design) stays untouched. The 4 captions' combined
+   width (up to ~224px each) now exceeds the ~670px text column, so wrap onto
+   a second line instead of overflowing, and center each line's leftover
+   space — keeps every figure (image + caption) centered as a group. */
+.project__chapter-placeholders--translate {
+  gap: 21px;                        /* 31px default + 10px - 30px + 10px */
+  flex-wrap: wrap;
+  justify-content: center;
+  row-gap: 20px;
+}
+
+/* Fixed-height slot (matching the tallest/default image, 148px) so b/ba and
+   the shorter p/pb all share one bottom edge; the play button + caption
+   below each image then start from that same aligned baseline. */
+.project__chapter-placeholder-imgwrap {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 148px;
+}
+
+/* The 2nd 01-6 gallery has no b/ba (148px) images to bottom-align against —
+   every figure in it is a 101px p/pb variant, so the shared 148px wrap above
+   was reserving ~47px of dead space above every image. Match the wrap to the
+   actual image height here instead. */
+.translate-row-split .project__chapter-placeholder-imgwrap {
+  height: 101px;
+}
+
+/* Second 01-6 gallery: two p/pb duos side by side, split by a vertical
+   hairline. Kept to one row (no wrap): wrapping wound up stacking the two
+   duos onto separate lines, each centered independently — since the divider's
+   padding/border live inside the 2nd duo's own box, that broke the visible
+   alignment between the two halves instead of preserving it. */
+.translate-row-split {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 31.5px;                      /* 24px + 7.5px (half of +15px, keeps the line centered) */
+  width: 100%;
+}
+
+/* Panel collapsed → page is much wider. Push the two duos apart to use it,
+   which pushes the very first (Neas) and very last (Kairo) image out toward
+   the row's edges. */
+body.is-panel-collapsed .translate-row-split {
+  justify-content: space-between;
+}
+
+/* The line itself: a left border on the 2nd duo, sized to its own content
+   height automatically (no separate stretched element needed). */
+.translate-row-split__group--divided {
+  padding-left: 31.5px;              /* 24px + 7.5px, matches the gap above so the line stays centered */
+  border-left: 1.5px solid #ebf7f7;
+}
+
+/* Character name under each 01-6 sample image; same orange all-caps style
+   as the site's other subtitles. */
+.project__chapter-placeholder-name {
+  font-family: "tondo", sans-serif;
+  font-size: 15px;
+  letter-spacing: normal;
+  text-transform: none;
+  font-weight: 500;
+  color: #0caaa2;
+  margin: 8px 0 0;
+  text-align: center;
+}
+
+body.is-panel-collapsed .translate-row-split .project__chapter-placeholders--translate {
+  gap: 44px;
+  flex-wrap: nowrap;
+}
+
+/* Play button under each 01-6 sample image; disabled where no matching
+   sample exists yet (p/pb — see initTranslateSamples in main.js). */
+.translate-play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 27.5px;
+  height: 27.5px;
+  flex: 0 0 auto;
+  margin-top: 11.5px;                /* match the button→caption gap below (11.5px) */
+  border-radius: 50%;
+  border: none;
+  background: #f7f7f7;
+  color: #555;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.translate-play.is-playing {
+  background: #0caaa2;
+  border-color: #0caaa2;
+  color: #fff;
+}
+
+.translate-play:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Play/pause glyph swap, mirrors the vtrack player's rule but scoped to this
+   button directly (no shared-player ancestor to key off of). */
+.translate-play.is-playing .vtrack__ic--play {
+  display: none;
+}
+
+.translate-play.is-playing .vtrack__ic--pause {
+  display: inline;
+}
+
+/* Sound-casting combinations: one row per sample (or pair of samples), image(s)
+   on the left and a heading + paragraph on the right. Rows are separated by a
+   hairline; the last row's images sit side by side, each with its own small
+   range label, under one shared heading/paragraph. */
+.sound-combos {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.sound-combos__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 20px 0;
+  border-top: 1.5px solid #ebf7f7;
+}
+
+.sound-combos__row:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+.sound-combos__img {
+  flex: 0 0 auto;
+  height: 120px;
+  width: auto;
+  border-radius: var(--radius-sm);
+  border: none;
+}
+
+.sound-combos__imgs {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 16px;
+}
+
+.sound-combos__imgs .sound-combos__img {
+  height: 113px;                   /* 7px shorter than the single-image rows above */
+}
+
+.sound-combos__imgwrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.sound-combos__range {
+  font-size: 15px;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.sound-combos__imgwrap .sound-combos__img {
+  height: 98px;                    /* p/pb: 22px shorter than the 120px default */
+}
+
+.sound-combos__text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sound-combos__heading {
+  font-size: 15px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: #0caaa2;
+  margin: 0 0 8px;
+}
+
+.sound-combos__desc {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 0;
+}
+/* Bold lead sentence of the paragraph — block-level so it still reads as its
+   own line despite being the same <p> as the text that follows it (same
+   pattern as .project__chapter-description--flaw-subtitle). */
+.sound-combos__lead {
+  display: block;
+  font-size: 15px;
+  color: #000000;
+}
+
+/* "Up next" — advances to the following chapter (or the next project) */
+/* Two-sided chapter nav: Previous (left) / Up next (right). */
+.project__chapnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+  padding-top: 12px;
+  border-top: 1.5px solid #ebf7f7;
+}
+.project__chapnav-side {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+  text-decoration: none;
+  color: var(--color-text);
+  cursor: pointer;
+}
+.project__chapnav-arrow {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.project__chapnav-arrow--prev {
+  border: 1.5px solid #0caaa2;
+  color: var(--color-text);
+}
+.project__chapnav-arrow--next {
+  background: #0caaa2;
+  color: #fff;
+}
+.project__chapnav-side--prev:hover .project__chapnav-arrow--prev { transform: translateX(-3px); }
+.project__chapnav-side--next:hover .project__chapnav-arrow--next { transform: translateX(3px); }
+.project__chapnav-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.project__chapnav-text--right {
+  align-items: flex-end;
+  text-align: right;
+}
+.project__chapnav-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  white-space: nowrap;
+  margin-bottom: -1px;
+}
+.project__chapnav-titleline {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.project__chapnav-num {
+  font-size: 1.05rem;
+  color: #d0b9ef;
+}
+.project__chapnav-title {
+  font-size: 1.05rem;
+  font-weight: 400;
+  color: #111111;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* --- About page hero banner --- */
+/* Row that holds the profile container on the left and the placeholder
+   content sections on the right. align-items:flex-start so .about-right
+   doesn't stretch to match .about-container's height. */
+.about-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(var(--space-6) - 6px);
+  margin-top: 20px;
+  /* .about-rail is height:100vh so it can stay pinned via position:sticky —
+     but a sticky element can only stay pinned for as much scroll distance as
+     its containing block is taller than it. The exact slack needed is set at
+     runtime by initAboutStickyFix (main.js), which measures the rail's real
+     rendered height instead of guessing — a fixed vh-based guess either came
+     up short (rail drifts for the last stretch of scroll) or overshot (dead
+     blank space below the card on shorter viewports). This min-height is
+     just the no-JS fallback. */
+  min-height: 100vh;
+}
+
+/* Right column: stacked placeholder sections (Bio / Skills & Softwares /
+   Off the Clock). Content TBD — each is just a label + title + empty box
+   for now. */
+.about-right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  flex: 1;
+  min-width: 0;
+  /* The menu icon is .about-rail's first child, at the row's cross-start —
+     zero padding here lines "01 BIO" up with its top exactly. */
+  padding-top: 0;
+}
+.about-section__label {
+  font-size: 0.72rem;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8a8a8a;
+  margin: 0 0 6px;
+}
+.about-section__title {
+  font-family: "tondo", sans-serif;
+  font-size: calc(0.95rem + 6.5px);
+  font-weight: 800;
+  font-style: normal;
+  color: #0caaa2;
+  text-transform: uppercase;
+  margin: 0 0 14px;
+}
+.about-bio {
+  margin: 0;
+  color: #000000;
+  font-size: calc(1rem + 1px);
+  line-height: 1.65;
+}
+.about-bio + .about-bio {
+  margin-top: 1em;
+}
+
+/* Off the Clock — accordion of dark "film strip" tabs. Collapsed tabs show
+   only a vertical label; the open one (.is-open, exclusive via JS in
+   initClockTabs) widens to fill the row and reveals a scrollable image list,
+   with the tab's title reflowing to a horizontal top-left heading. */
+.clock-tabs {
+  display: flex;
+  gap: 14px;
+  height: 370px;
+}
+
+.clock-tab {
+  position: relative;
+  flex: 0 0 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 13px;
+  background: #000000;
+  cursor: pointer;
+  overflow: hidden;
+  /* Slower and smoother than the site's usual --duration-entrance (300ms) —
+     this element is wide and its resize is the whole point of the
+     interaction, so it reads better eased-out over a longer stretch. */
+  transition: flex-basis 1100ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.clock-tab.is-open {
+  flex: 1 1 0%;
+  cursor: default;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+.clock-tab__label {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 17px;   /* retracted (collapsed) size only — .is-open overrides back down below */
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Open: the label leaves its centered vertical spot and becomes a normal
+   horizontal heading pinned to the top-left corner instead, back at its
+   original (pre-retracted-bump) size. */
+.clock-tab.is-open .clock-tab__label {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  writing-mode: horizontal-tb;
+  transform: none;
+  font-size: 17px;
+}
+
+.clock-tab__body {
+  display: none;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 44px 14px 16px;   /* top padding clears the title */
+}
+
+.clock-tab.is-open .clock-tab__body {
+  display: flex;
+}
+
+/* Horizontal photo strip — images sit side by side at full tab height (so
+   every photo in every tab renders at the same height) and the row scrolls
+   sideways. */
+.clock-tab__gallery {
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
+  flex: 1;
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 4px;
+  scrollbar-width: none;         /* Firefox */
+}
+
+.clock-tab__gallery::-webkit-scrollbar {
+  display: none;                 /* Chrome/Safari */
+}
+
+.clock-tab__photo {
+  position: relative;
+  flex: 0 0 auto;
+  height: 100%;
+}
+
+.clock-tab__photo-frame {
+  height: calc(100% - 26px);
+}
+
+.clock-tab__photo-img {
+  display: block;
+  height: 100%;
+  width: auto;
+  object-fit: cover;
+  border-radius: 6.5px;
+}
+
+/* Plain caption under each photo. */
+.clock-tab__photo-tag {
+  display: block;
+  margin-top: 6px;
+  color: #ffffff;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+/* Skills & Softwares tags — outlined rounded pills, single-line text. Row 1
+   uses the purple border (disciplines), row 2 the orange border (software). */
+.about-skills {
+  display: flex;
+  flex-direction: column;
+  gap: 18.5px;
+}
+.about-skills__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Sticky rail: menu icon + profile container move as one pinned, vertically
+   centered unit while .about-right scrolls past underneath. Same pattern as
+   the project pages' .np-player-col: sticky + height:100vh +
+   justify-content:center.
+
+   A sticky element can only stay pinned for as much scroll distance as its
+   containing block (.about-layout) is taller than itself. .page's 48px top +
+   48px bottom padding add scrollable distance that a mere height:100vh
+   parent doesn't cover — that shortfall is exactly how much the rail used to
+   drift near the bottom of the page instead of staying put. .about-layout's
+   min-height below adds that slack back deliberately (100vh + 96px, matching
+   .page's combined top+bottom padding) rather than leaving it at a bare
+   100vh, which measured out to zero usable slack. */
+.about-rail {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  /* .page's 48px top padding + .about-layout's 20px margin push this rail's
+     static position down to y:68 before it ever gets a chance to stick — so
+     without this, the 100vh box starts 68px into the viewport and overflows
+     68px past the bottom, and justify-content:center balances within THAT
+     box instead of the real viewport. This negative margin cancels the
+     ancestor offset so the box is flush with y:0 and actually centers.
+     position:sticky clamps here — margin more negative than this has no
+     further effect, so this is the minimal value that reaches y:0. */
+  margin-top: -68px;
+  /* Without this, .about-photo-tag's own z-index only wins within .about-rail's
+     stacking context — .about-right comes later in the DOM and paints over
+     the whole rail regardless, since the rail itself has no stacking order
+     relative to it. This lifts the entire rail (tag included) above it. */
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 20px;
+}
+
+/* Profile container: same fill + corner radius as the project pages' left
+   panel (.np-player / body.page-project .np-player--project) for visual
+   consistency across the site. */
+.about-container {
+  position: relative;              /* anchors the back button to this corner */
+  width: fit-content;
+  /* The back button used to sit flush with the rail's top edge — the same y
+     as "01 BIO" in the right column — with the container starting 60px below
+     it. Keeping margin-top:0 here means the container (and the button now
+     inside it) sit flush with "01 BIO" instead, matching that old top-aligned
+     balance between the two columns. */
+  margin-top: 0;
+  /* Top grows to clear the back button (40px tall, sat 20px from the top) plus
+     a 16px gap down to the photo; left/right/bottom keep their original 20/16px. */
+  padding: 72px 20px 16px;
+  background: transparent;
+  color: #0caaa2;
+  border: 1.5px solid #dedede;
+  border-radius: 14px;
+  box-shadow: none;
+  /* Scales the whole container (text, image, padding, everything) up as one
+     unit rather than adjusting each property individually. Ratio computed
+     from the container's actual rendered width (400px) so it grows by
+     exactly 40px total: (400+40)/400 = 1.1. transform-origin:left so it grows
+     rightward from its left edge (paired with margin-right below) instead of
+     expanding both left and right from center. The Y-origin is center, not
+     top, so it grows evenly UP and DOWN from its own vertical middle — with
+     the rail vertically centering this box (.about-rail, height:100vh +
+     justify-content:center), that keeps the pre-scale and post-scale vertical
+     centers identical; top-anchored growth would only extend the box
+     downward and throw the centering off by half the growth. */
+  transform: scale(1.1);
+  transform-origin: left center;
+  /* transform doesn't affect layout, so without this the 40px of rightward
+     growth above would just overlap .about-right instead of pushing it over —
+     this reserves that same 40px in the flex row so .about-layout's gap
+     still reads as the original var(--space-6), and .about-right shrinks by
+     40px to make room (flex:1 does that automatically). */
+  margin-right: 40px;
+}
+
+/* Profile block: photo/name/status/follow. Capped at 260px (the old card
+   column's width) so it doesn't stretch to the full container width. */
+.about-photo-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+}
+.about-photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6.5px;
+}
+.about-name {
+  max-width: 260px;
+  margin: 18px 0 7.5px;
+  font-family: "tondo", sans-serif;
+  font-size: calc(2.1rem + 10px);
+  font-weight: 800;
+  font-style: normal;
+  color: #1a1a1a;
+  line-height: 1.1;
+}
+
+.about-role {
+  max-width: 260px;
+  margin: 0 0 46px;
+  color: #8a8a8a;
+}
+.about-role__title,
+.about-role__sub {
+  display: block;
+  line-height: 1.5;
+}
+.about-role__title {
+  font-size: calc(0.95rem + 6.5px);
+  color: #0caaa2;
+}
+.about-role__sub {
+  /* Tighter than the ~7.6px gap line-height:1.5 would otherwise leave, and
+     its own font-size dialed down from the title's. */
+  margin-top: -1.4px;
+  font-size: 15px;
+  color: #000000;
+}
+.about-role__sub--light {
+  font-weight: normal;
+}
+
+.about-follow {
+  position: relative;             /* anchor for the shine streak (::before) */
+  top: -5px;
+  overflow: hidden;               /* clip the streak to the pill's rounded shape */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  max-width: 136px;
+  margin: 0 auto;
+  padding: 3.5px 0;
+  border: 2.5px solid #0caaa2;
+  border-radius: 999px;
+  background: transparent;
+  color: #0caaa2;
+  font-weight: 700;
+  font-size: 17px;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background var(--duration-interaction) var(--ease-standard);
+}
+
+/* Same diagonal light-streak sweep as .footer__link. */
+.about-follow::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(115deg, transparent, rgba(255, 255, 255, 0.75), transparent);
+  transform: skewX(-20deg);
+  pointer-events: none;
+}
+
+.about-follow:hover::before {
+  animation: footer-link-shine 0.7s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-follow:hover::before {
+    animation: none;
+  }
+}
+
+.about-follow:hover {
+  animation: about-follow-shake 0.45s ease-in-out;
+}
+@keyframes about-follow-shake {
+  0%, 100% { transform: rotate(0deg) translateX(0); }
+  20%       { transform: rotate(-3deg) translateX(-2px); }
+  40%       { transform: rotate(3deg)  translateX(2px); }
+  60%       { transform: rotate(-2deg) translateX(-1px); }
+  80%       { transform: rotate(2deg)  translateX(1px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .about-follow:hover {
+    animation: none;
+  }
+}
+.about-follow__plus,
+.about-follow__text {
+  display: block;
+  line-height: 1;
+}
+.about-follow__text {
+  font-size: 19px;
+}
+.about-follow__plus {
+  font-size: calc(1rem + 12px);
+  /* Box-centering (align-items:center) puts the two spans' boxes on the same
+     line, but the "+" glyph's own ink sits lower within its box than
+     "FOLLOW"'s letters do at this font-size — this nudges it up to actually
+     look aligned instead of just being aligned by the numbers. */
+  position: relative;
+  top: -0.6px;
+}
+
+/* =========================================
+   NOW-PLAYING SPLIT LAYOUT (tracklist page)
+   Left  = dark "now playing" player for the featured track.
+   Right = cream album meta + the rest of the tracklist.
+   One rounded card, split down the middle.
+   (Supersedes the older .tracklist / .player layout.)
+   ========================================= */
+/* Two SEPARATE containers side by side (each rounds + shadows on its own —
+   they are not joined into one card). The gap is the seam between them. */
+.np {
+  display: grid;
+  /* Left panel +15px. Right column is 1fr, so it automatically gives up
+     exactly that much width — total width and the gap below stay unchanged. */
+  grid-template-columns: minmax(365px, 445px) 1fr;
+  gap: 0;
+  align-items: start; /* left panel keeps its own height instead of stretching to match the tracklist */
+}
+
+/* ---------- LEFT: dark now-playing player ---------- */
+.np-player {
+  background: transparent;
+  color: #0caaa2;
+  padding: var(--space-5) clamp(24px, 2.4vw, 36px);
+  border: 1.5px solid #dedede;
+  border-radius: 14px;
+  /* Near-black shadow tinted toward a dark shade of the mint page color (#ddf0ea) */
+  box-shadow: 0 18px 44px rgba(16, 46, 40, 0.28);
+  overflow: hidden;               /* contains the carousel's off-stage cards, clipped at the panel's rounded edge */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  /* Pin the panel at its own viewport-fitting height so it stays put — and
+     never grows — while the tracklist column scrolls independently behind it. */
+  position: sticky;
+  top: 34px;
+  height: calc(100vh - 69px);
+}
+
+.np-player__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: -16px;              /* pull the top row (home button + label) up */
+  margin-bottom: 6px;            /* offset the extra pull so the carousel below stays put, +7px extra gap, -6px tighter to image, -4px tighter */
+}
+
+/* Tracklist is the site's first page now, so its top row has no home button —
+   just the "now playing" tag. space-between would otherwise strand it flush
+   left; push it back to where the button used to balance it. */
+body.page-tracklist .np-player__top {
+  justify-content: flex-end;
+}
+
+.np-player__nowplaying {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: -23px;     /* pull closer to the panel's right edge, +6px further right */
+  padding: 6.5px 14.75px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  font-weight: 500;
+  color: #1cb5b5;
+  line-height: 1;
+}
+
+/* Coverflow image carousel — centre card is the current image; its neighbours
+   peek at the edges (the rest sit parked off-stage). Cards are absolutely
+   centred in the stage and JS sets each one's offset/scale from its distance
+   to the active card, so the whole thing is driven by transforms. */
+/* Column rail: exactly viewport-tall and sticky from load (the -12px margin
+   cancels the body's frame padding so 100vh really spans the screen), with the
+   panel flex-centered inside. Top gap = bottom gap at every window size and
+   scroll position — page growing longer changes nothing. */
+.np-player-col {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  margin-top: -12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Above the body column, which is sealed at z-index 0 — so the card fan's
+     cards slide behind the panel instead of across it. Well under the preloader
+     (500), which still covers everything. */
+  z-index: 1;
+}
+
+/* Both pages' panels hug their content (the rail owns pinning + centering),
+   so the last child → panel-bottom gap is exactly the padding-bottom: 16px,
+   matching the home-button → panel-top gap (32px padding-top − the top row's
+   -16px pull). Applies to the tracklist panel and the project-page panel so
+   the two render at the same width, in the same spot, with the same behavior. */
+body.page-tracklist .np-player,
+body.page-project .np-player--project {
+  position: static;
+  height: auto;
+  padding-bottom: calc(var(--space-5) - 16px);
+}
+
+body.page-tracklist .np-player {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* If the chapter list ever outgrows the screen, cap the panel just inside the
+   viewport (12px frame top and bottom) and let .np-chapters (min-height:0,
+   overflow-y:auto) scroll internally instead of the panel overflowing the rail. */
+body.page-project .np-player--project {
+  max-height: calc(100vh - 24px);
+}
+
+body.page-project .np-player--project {
+  /* Same treatment as the tracklist panel: transparent, no shadow, blending
+     into the (now white) page background instead of standing out as a card. */
+  background: transparent;
+  box-shadow: none;
+}
+
+.np-carousel {
+  /* Single knob for image size. The stage AND every card read it, so the front
+     card (scale 1) always exactly fills the stage box. */
+  --card: min(37.8vh, 299px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Now that the pagination dots are gone, the stage is the only flex child —
+     this margin alone owns the gap down to the Album label. Set to the sum of
+     what used to separate them (19px stage→dots gap + 9px dot height + 7.55px
+     dots→label margin + the carousel's own 5.5px), so removing the dots didn't
+     also collapse that spacing. */
+  margin: -6.5px 0 41.05px;
+}
+
+/* Square-ish stage that just centres the single static card. Capped by vh so
+   it never scrolls. */
+.np-carousel__stage {
+  width: 100%;
+  height: var(--card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 9px; /* match the video/image slots' gap down to the Album text, so all carousel modes land the same distance from it */
+}
+
+.np-card {
+  width: var(--card);             /* square: side == stage height (shared --card) */
+  height: var(--card);
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: #2a251d;
+  background-size: cover;         /* so a real url() image covers the card later */
+  background-position: center;
+  transition: opacity 0.4s var(--ease-standard);
+}
+
+/* Domicile's slot swaps the coverflow for a looping gameplay demo, shown at
+   its full native width (no square crop) — height follows the video's own
+   aspect ratio instead of matching the stage's fixed square. */
+.np-carousel__video {
+  display: none;
+  /* No margin needed to recentre this: .np-carousel's align-items: center
+     already centres a flex item on its own box, so growing the width alone
+     overflows evenly on both sides. */
+  width: calc(100% + 15px);
+  max-width: none;
+  height: auto;
+  margin-bottom: 9px; /* extra gap down to the album text, on top of the carousel's own bottom margin; -7px, -4px */
+  border-radius: 4px;
+}
+
+/* Metro's map isn't square either — shown at its own aspect ratio, full width,
+   on white (its PNG has transparent regions the dark card background would
+   otherwise show through as a crop-looking cut). */
+.np-carousel__image {
+  display: none;
+  /* .np-carousel's align-items: center recentres this automatically as it
+     grows, same as the video slot above. */
+  width: calc(100% + 8px);
+  max-width: none;
+  height: auto;
+  background: #fff;
+  margin-bottom: 9px; /* → 24px total down to the album text, matching the video slot; -7px, -4px */
+  border-radius: 4px;
+}
+
+/* Malibu-Baddie's cover occupies exactly the same box as Metro's map image:
+   the stage takes the image's width (100%) and its native 7482x5608 ratio,
+   so the stage height IS the map height. The card is a square as tall as
+   that stage. Deriving both from the panel width (not vh, which tracks
+   nothing the map tracks) keeps it matching at every window size. */
+.np-carousel.is-malibu .np-carousel__stage {
+  width: calc(100% + 8px);        /* same box as the map image above */
+  height: auto;
+  aspect-ratio: 7482 / 5608;      /* mapcar.png's native ratio */
+}
+
+.np-carousel.is-malibu .np-card {
+  width: auto;
+  height: 100%;                   /* == stage height == map height */
+  aspect-ratio: 1;
+}
+
+.np-carousel.is-video .np-carousel__stage,
+.np-carousel.is-image .np-carousel__stage {
+  display: none;
+}
+
+.np-carousel.is-video .np-carousel__video {
+  display: block;
+}
+
+.np-carousel.is-image .np-carousel__image {
+  display: block;
+}
+
+
+.np-player__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: -40.5px;  /* pull the meta block (and everything below) up under the carousel — 3.5px more, +6px more, -5px tighter, -10px tighter, -7px tighter */
+  margin-left: -18px; /* match the home button's -18px pull so the text left-aligns with it */
+}
+
+.np-player__from {
+  margin: 0 0 5.5px 12px; /* 10px VISUAL gap to the subtitle: the line box adds ~4.5px of dead space under the glyphs, so the margin is 10 − 4.5. Left indent = pill's border+padding, so text aligns with the pill's inner text */
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #1cb5b5;
+  font-weight: 500;
+}
+
+.np-player__subtitle {
+  margin: 0 0 9.2px 12px;  /* 10px VISUAL gap down to the pill's border: the line box adds ~0.8px of dead space under the glyphs, so the margin is 10 − 0.8 */
+  font-size: 15px;
+  line-height: 1;
+  font-weight: 500;
+  color: #000000;
+}
+
+.np-player__title {
+  margin: 10px 0 0 12px;  /* 10px down from the subtitle above (Domicile only — the
+                            tagfont rule below resets this to 5px for the other
+                            two); 12px left indent aligns with the labels above */
+  font-family: "yoon-px-pixman", sans-serif;
+  font-size: clamp(calc(2rem + 14px), 3.4vw, calc(2.6rem + 14px));
+  font-weight: 400;
+  -webkit-text-stroke: 0.6px currentColor; /* pixel font has no real bold weight — fake it */
+  font-style: normal;
+  line-height: 1.05;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #0c0c0c;
+}
+
+/* Metro Rerouted and Malibu-Baddie use Quicksand instead of the pixel font
+   the other projects use. Both share this one size — no per-track override.
+   text-transform is inherited from the base rule, so these stay uppercase. */
+.np-player__title--tagfont {
+  font-family: "tondo", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+  font-size: clamp(40px, 2.2vw, 47px); /* smaller than the pixel title so the longer strings stay on one line */
+  -webkit-text-stroke: 0; /* only the pixel font needs the fake-bold stroke */
+  margin-top: 5px;        /* +5px down from the subtitle above — these two only */
+}
+
+.np-player__title + .np-player__desc {
+  margin-top: 2px;
+}
+
+.np-player__title--tagfont + .np-player__desc {
+  margin-top: 6px; /* 4px more than the standard title→desc gap (2px) */
+}
+
+.np-player__desc {
+  margin: 11px 0 0 12px;  /* same 12px left indent → aligns with the pill's inner text */
+  color: #0c0c0c;
+  font-size: 17px;
+  line-height: 21.3px; /* 16 × 1.15 + 0.4px, +1px, +0.5px, +1px — same formula as before */
+}
+
+/* Project timeline card — date range, progress bar, and transport controls */
+.np-timeline {
+  background: #f7f7f7;
+  border-radius: 7px;              /* match the whitish np-player panel */
+  padding: 10px 28px 37px;   /* contents up 3px more; card height unchanged */
+  /* 10px more space from the blurb text above, +10px */
+  margin-top: 20px;
+  /* 20.25px wider on each edge → 40.5px wider overall */
+  margin-left: -20.25px;
+  margin-right: -20.25px;
+}
+
+.np-timeline__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 0 -10px; /* match the track's horizontal overhang so dates line up with its ends */
+}
+
+.np-timeline__date {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: #6d6d6d;
+}
+
+/* Progress bar — orange rail with a filled knob at the current point */
+.np-timeline__track {
+  position: relative;
+  height: 14px;
+  margin: 5px -10px 0;
+  cursor: pointer;
+  touch-action: none;             /* let the knob drag without page-scrolling */
+  user-select: none;
+}
+
+.np-timeline__line,
+.np-timeline__fill {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 8px;
+  border-radius: 999px;
+  transform: translateY(-50%);
+  box-sizing: border-box;
+}
+
+.np-timeline__line {
+  right: 0;
+  background: #dedede;
+}
+
+.np-timeline__fill {
+  width: 0%;                       /* driven by JS as the knob is dragged */
+  background: #6dccbe;
+  border: 1.8px solid #000;       /* black outline */
+}
+
+/* Knob at the end of the fill */
+.np-timeline__fill::after {
+  content: '';
+  position: absolute;
+  right: -2px;                    /* offset for the fill's own border */
+  top: 50%;
+  transform: translate(50%, -50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #6dccbe;
+  border: 1.8px solid #000;
+  box-sizing: border-box;
+}
+
+/* Transport controls now live inside the timeline card */
+.np-timeline .np-controls {
+  margin-top: 16.5px;
+}
+
+/* Transport controls — prev / big play / next, centered */
+.np-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--space-5) - 24px);
+  margin-top: 16.5px;
+  position: relative;
+}
+
+.np-controls__btn {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: #000;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--duration-interaction) var(--ease-standard);
+}
+
+/* Drop the inline baseline gap so the glyph sits dead-center in the circle */
+.np-controls__btn svg {
+  display: block;
+}
+
+/* Soften the corners of the skip + play glyphs a touch */
+.np-controls__btn svg path,
+.np-controls__btn svg rect,
+.np-controls__play svg path {
+  stroke: currentColor;
+  stroke-width: 1.4px;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* Play glyph a touch less rounded than the skip icons */
+.np-controls__play svg path {
+  stroke-width: 0.9px;
+}
+
+.np-controls__btn:hover {
+  transform: scale(1.06);
+}
+
+.np-controls__play {
+  width: calc(4rem - 21px);
+  height: calc(4rem - 21px);
+  border-radius: 50%;
+  background: transparent;
+  border: 3.3px solid #0caaa2;
+  color: #0caaa2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform var(--duration-interaction) var(--ease-standard);
+}
+
+.np-controls__play:hover {
+  transform: scale(1.06);
+}
+
+/* No fixed size here — the glyph's actual size is set on the <svg> itself
+   (tracklist.html), so it can be resized without touching this CSS too. */
+
+.np-controls__play-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.np-controls__play-label {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 17px;
+  letter-spacing: 0.02em;
+  color: #0c0c0c;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-interaction) var(--ease-standard);
+}
+
+.np-controls__play-wrap:hover .np-controls__play-label {
+  opacity: 1;
+}
+
+/* ---------- RIGHT: cream album + tracklist ---------- */
+/* No card of its own — it sits directly on the page so only the black player
+   reads as a container. Keeps the full height so both columns still line up. */
+.np-list {
+  min-height: calc(100vh - 24px);
+  padding: calc(var(--space-6) - 31px) clamp(28px, 3vw, 48px) var(--space-6);
+  margin-right: 10px;            /* trim 10px off the tracklist's width */
+  display: flex;
+  flex-direction: column;
+}
+
+.np-list__head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-top: 7.5px;
+}
+
+/* Placeholder image + album/title text sit side by side */
+.np-list__heading {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-4);
+  margin-top: 20px;
+}
+
+.np-list__title {
+  margin: -1px 0 0;
+  font-size: clamp(calc(1.9rem + 1px), 3vw, calc(2.4rem + 1px));
+  font-weight: bold;
+  line-height: 1.05;
+  color: #0c0c0c;
+}
+
+.np-artist {
+  flex-shrink: 0;
+  margin-top: 10.5px;
+}
+
+.np-tracks {
+  list-style: none;
+  padding: 0;
+  margin: 57px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.np-tracks .track {
+  position: relative;
+}
+
+.np-tracks .track:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;                      /* flush against the row, no gap */
+  height: 1.5px;
+  background: #ebf7f7;
+}
+
+/* The line a row touches disappears once that row's rounded highlight
+   (hover or the now-playing active state) is showing. */
+.np-tracks .track:not(.track--locked):hover::after,
+.np-tracks .track--active::after,
+.np-tracks .track:has(+ .track:not(.track--locked):hover)::after,
+.np-tracks .track:has(+ .track--active)::after {
+  opacity: 0;
+}
+
+/* Tighter rows than the old featured layout */
+.np-list .track {
+  padding: 17px 16px;
+}
+
+.np-list .track__icon {
+  width: calc(2.6rem + 19.5px); /* +8px, +2px, +2px */
+  margin-left: 2.5px;            /* a touch more space between the number and the icon */
+}
+
+/* The now-playing row: subtle highlight, no navigation */
+.track--active,
+.track--active:hover {
+  background: #f2fbfb;
+  border-radius: var(--radius-md);
+}
+
+/* Pixel-quest thumbnail (overridden by a real image via .is-photo) */
+.track__icon--pixel {
+  border: none;
+  background: linear-gradient(135deg, #d79a6d, #b5663a);
+}
+
+/* Animated equalizer, shown where the track number sits on the active row */
+.track__eq {
+  /* Must stay 1.5rem — same width as .track__number, which it swaps places
+     with in the same column. A wider box here shifts the icon/title/runtime
+     after it to the right on the active row only, throwing rows out of line. */
+  width: 1.5rem;
+  height: 19px;
+  flex-shrink: 0;
+  display: none;                 /* only the now-playing row shows bars… */
+  align-items: center;
+  justify-content: flex-end;     /* sit at the right edge, like the right-aligned number */
+  gap: 2px;
+}
+
+/* …swapped in for that row's number as the highlight moves between tracks */
+.track--active .track__eq { display: flex; }
+.track--active .track__number { display: none; }
+
+.track--active .track__title { color: #0caaa2; }
+.track--active .track__subtitle { color: #0caaa2; }
+
+.track__eq i {
+  flex: 1;
+  max-width: 3px;
+  background: #0caaa2;
+  border-radius: 7px;
+  animation: eq-bounce 1.1s ease-in-out infinite;
+}
+
+.track__eq i:nth-child(1) { animation-delay: -0.9s; }
+.track__eq i:nth-child(2) { animation-delay: -0.4s; }
+.track__eq i:nth-child(3) { animation-delay: -0.6s; }
+
+@keyframes eq-bounce {
+  0%, 100% { height: 25%; }
+  50%      { height: 100%; }
+}
+
+.np-list__divider {
+  border: none;
+  border-top: 1.5px solid #ebf7f7;
+  margin: 0 0 37px;   /* +10px down to the footer buttons */
+  transition: opacity 0.15s ease;
+}
+
+.np-tracks:has(.track:last-child:not(.track--locked):hover) + .np-list__divider,
+.np-tracks:has(.track:last-child.track--active) + .np-list__divider {
+  opacity: 0;
+}
+
+.np-find {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7.5px;
+}
+
+.np-find .footer__label {
+  color: #41c1ce;
+}
+
+/* Stack the two panels on narrow screens */
+@media (max-width: 860px) {
+  .np {
+    grid-template-columns: 1fr;
+  }
+
+  /* size to content when stacked instead of forcing each to a full screen */
+  .np-player,
+  .np-list {
+    min-height: 0;
+  }
+
+  .np-player {
+    margin-bottom: 0;
+    /* Extend 5px into the body's 12px side padding on each edge,
+       leaving a 7px gap to the screen's left/right edges. */
+    margin-left: -5px;
+    margin-right: -5px;
+    border-radius: 7px;
+    transform: translateY(-5px);
+    /* Drop the desktop pinning once stacked — flow normally, size to content. */
+    position: static;
+    height: auto;
+  }
+
+  /* The centering rail also flows normally when stacked. */
+  .np-player-col {
+    position: static;
+    height: auto;
+    margin-top: 0;
+    display: block;
+  }
+}
