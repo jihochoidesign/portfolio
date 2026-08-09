@@ -1502,6 +1502,19 @@ body.is-panel-collapsed .np-chapter::before {
   height: auto;
 }
 
+/* One tile per row on mobile instead of the 4-way equal split (which lands
+   each at ~65px wide) — 60px wider than that, not stretched to fill. */
+@media (max-width: 860px) {
+  .project__chapter-wgallery {
+    flex-direction: column;
+    align-items: center;
+  }
+  .project__chapter-wgallery-figure {
+    flex: 0 0 auto;
+    width: 165px;
+  }
+}
+
 /* Same image→caption gap as the placeholder figures (11.5px). */
 .project__chapter-wgallery-figure .project__chapter-caption {
   margin-top: 11.5px;
@@ -1535,6 +1548,21 @@ body.is-panel-collapsed .np-chapter::before {
   display: block;
   width: 100%;
   height: auto;
+}
+
+/* One map per row on mobile instead of the 4-way equal split (~69px each) —
+   120px wider than that, not stretched to fill. flex-grow needs !important:
+   it's set inline per-figure in JS for the desktop row-share sizing. */
+@media (max-width: 860px) {
+  .project__chapter-mapgallery {
+    flex-direction: column;
+    align-items: center;
+  }
+  .project__chapter-mapgallery-figure {
+    flex: 0 0 auto;
+    flex-grow: 0 !important;
+    width: 189px;
+  }
 }
 
 /* nplan2's frame. Tag 3's own 23px margin-bottom owns the tag→image gap, so
@@ -1604,6 +1632,14 @@ body.is-panel-collapsed .np-chapter::before {
   margin: 0;
   display: flex;
   flex-direction: column;
+}
+@media (max-width: 860px) {
+  .project__chapter-prentries {
+    flex-direction: column;
+  }
+  .project__chapter-prentry {
+    flex: 0 0 auto;
+  }
 }
 .project__chapter-prentry-img {
   display: block;
@@ -2019,6 +2055,14 @@ body.is-panel-collapsed .fan-card {
   max-width: calc(100% - 550px);
   margin: 0 auto 6px;               /* same image→caption gap as the rest of the chapter (6px) */
 }
+/* calc(100% - 550px) goes negative below ~550px wide, collapsing the whole
+   card to a hairline stretched tall by its row content — the fixed 550px
+   reservation only makes sense against the wide desktop column. */
+@media (max-width: 860px) {
+  .vtrack {
+    max-width: 100%;
+  }
+}
 .vtrack__list {
   list-style: none;
   margin: 8px 0;
@@ -2257,6 +2301,39 @@ body.is-panel-collapsed .fan-card {
   align-items: center;
 }
 
+/* Side-scrolling reads fine on a trackpad or a mouse wheel, but on a phone
+   it means every item after the first is hidden until you think to swipe
+   sideways. Stack them in the page's own vertical scroll instead. Items were
+   sized off their fixed 220px-tall image (whatever width that came out to);
+   several run past a phone's width and get sliced off by .project-shell's
+   overflow-x: clip. Capping the image by width instead (height:auto) and
+   letting the item take the full column keeps every image whole. */
+@media (max-width: 860px) {
+  .shelf__scroll {
+    overflow-x: visible;
+  }
+  .shelf__track {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  .shelf__item {
+    width: 100%;
+  }
+  .shelf__img {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+  }
+  .shelf__item--pair {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    width: 100%;
+  }
+  .shelf__item--pair .shelf__img {
+    width: 100%;
+  }
+}
+
 /* Uniform height gives the shared baseline; width follows each source ratio. */
 .shelf__img {
   display: block;
@@ -2473,6 +2550,15 @@ body.is-panel-collapsed .fan-card {
   display: flex;
   flex-direction: column;
 }
+
+@media (max-width: 860px) {
+  .project__chapter-prompts {
+    flex-direction: column;
+  }
+  .project__chapter-prompt {
+    width: 100%;
+  }
+}
 .project__chapter-prompt-img {
   display: block;
   width: 100%;
@@ -2586,6 +2672,37 @@ body.is-panel-collapsed .fan-card {
 }
 .project__chapter-takeaway-row.is-visible .project__chapter-takeaway-img:nth-child(3) {
   transition-delay: 0.2s;
+}
+
+/* Mobile: same cascading overlap, rotated 90° — stacked top to bottom
+   (negative margin-top instead of margin-left) with the white backing and
+   reveal slide following the new direction. flex-grow needs !important:
+   it's set inline per-image for the desktop equal-height row sizing, which
+   otherwise beats this external rule and fights the column layout. */
+@media (max-width: 860px) {
+  .project__chapter-takeaway-row {
+    flex-direction: column;
+  }
+  .project__chapter-takeaway-img {
+    flex: 0 0 auto;
+    flex-grow: 0 !important;
+    width: 100%;
+  }
+  .project__chapter-takeaway-img:nth-child(2) {
+    box-shadow: 0 -8px 0 0 #fff, 0 8px 0 0 #fff, 0 4px 14px rgba(0, 0, 0, 0.18);
+  }
+  .project__chapter-takeaway-img + .project__chapter-takeaway-img {
+    margin-left: 0;
+    margin-top: -28px;
+  }
+  .project__chapter-takeaway-row .project__chapter-takeaway-img:nth-child(2),
+  .project__chapter-takeaway-row .project__chapter-takeaway-img:nth-child(3) {
+    transform: translateY(40px);
+  }
+  .project__chapter-takeaway-row.is-visible .project__chapter-takeaway-img:nth-child(2),
+  .project__chapter-takeaway-row.is-visible .project__chapter-takeaway-img:nth-child(3) {
+    transform: translateY(0);
+  }
 }
 
 /* Node treatment row (metro, Visual Precedent Analysis): 4 images side by
@@ -3302,6 +3419,12 @@ body.is-panel-collapsed .translate-row-split .project__chapter-placeholders--tra
   display: flex;
   flex: 0 0 auto;
   gap: 16px;
+}
+
+@media (max-width: 860px) {
+  .sound-combos__imgs {
+    flex-direction: column;
+  }
 }
 
 .sound-combos__imgs .sound-combos__img {
