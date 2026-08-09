@@ -3431,6 +3431,17 @@ body.is-panel-collapsed .translate-row-split .project__chapter-placeholders--tra
   flex-wrap: wrap;
   gap: 8px;
 }
+.about-skills-text {
+  color: #000000;
+  font-size: 18px;
+}
+.about-skills-dot {
+  font-size: 28px;
+  margin: 0 3px;
+  vertical-align: middle;
+  display: inline-block;
+  line-height: 0;
+}
 
 /* Sticky rail: menu icon + profile container move as one pinned, vertically
    centered unit while .about-right scrolls past underneath. Same pattern as
@@ -3675,6 +3686,27 @@ body.is-panel-collapsed .translate-row-split .project__chapter-placeholders--tra
     padding-top: var(--space-6);
   }
 
+  /* Desktop's sizes were tuned against a wide sticky rail sitting next to a
+     tall right column — stacked full-width on a phone they read oversized
+     relative to the line lengths they now wrap at. Scaled down, not just
+     capped, so the type still feels intentional rather than clipped. */
+  .about-name {
+    font-size: 34px;
+  }
+  .about-role__title,
+  .about-section__title {
+    font-size: 19px;
+  }
+  .about-bio {
+    font-size: 15px;
+  }
+  .about-skills-text {
+    font-size: 15px;
+  }
+  .about-skills-dot {
+    font-size: 22px;
+  }
+
   /* The hover/tap accordion only makes sense when three collapsed strips
      can sit side by side — once stacked to one column there's no room for
      that, so every tab is forced open (initClockTabs skips the accordion
@@ -3697,6 +3729,9 @@ body.is-panel-collapsed .translate-row-split .project__chapter-placeholders--tra
   }
   .clock-tab.is-open {
     height: 220px;
+  }
+  .about-name {
+    font-size: 30px;
   }
 }
 
@@ -4319,8 +4354,22 @@ body.page-project .np-player--project {
 
 /* Stack the two panels on narrow screens */
 @media (max-width: 860px) {
+  /* Desktop's 0 right-padding exists so .np-list's tracklist column butts
+     flush against the viewport's right edge, matching the 0px gap between
+     the two grid columns there. Once stacked, .np-player is full-width and
+     its own mobile margin math (below) assumes equal padding on both sides
+     to eat into — so this breakpoint restores that symmetry. */
+  body.page-tracklist {
+    padding-right: 12px;
+  }
+
   .np {
-    grid-template-columns: 1fr;
+    /* minmax(0, 1fr), not a bare 1fr — a bare 1fr track still carries the
+       grid default min-width:auto, which floors it at its content's
+       min-content width (here, ~390px from the timeline/nowplaying-tag
+       text not wrapping) regardless of the fr unit, overflowing any
+       viewport narrower than that. minmax(0, 1fr) removes that floor. */
+    grid-template-columns: minmax(0, 1fr);
   }
 
   /* size to content when stacked instead of forcing each to a full screen */
@@ -4348,5 +4397,81 @@ body.page-project .np-player--project {
     height: auto;
     margin-top: 0;
     display: block;
+  }
+
+  /* .np-list's desktop margin-right:10px trims it relative to .np-player —
+     invisible on desktop where they're independent columns, but stacked as
+     one column it reads as the list being narrower than the panel above it.
+     Mirrors .np-player's own -5px/-5px so both share the same outer edges. */
+  .np-list {
+    margin-left: -5px;
+    margin-right: -5px;
+    padding-left: clamp(24px, 2.4vw, 36px);
+    padding-right: clamp(24px, 2.4vw, 36px);
+  }
+
+  /* Desktop's hero type was sized for a ~1030px-wide page — at full phone
+     width the same clamp()s bottom out at their (still-desktop-scale)
+     minimum instead of ever reaching the vw-scaled part, so they render
+     oversized relative to how little width wraps them. Fixed, smaller
+     sizes here rather than lower clamp floors, since these are one-line
+     labels, not paragraphs that need to keep reflowing. */
+  .np-list__title {
+    font-size: 28px;
+  }
+  .np-player__title {
+    font-size: 34px;
+  }
+  .np-player__title--tagfont {
+    font-size: 28px;
+  }
+  .np-player__desc {
+    font-size: 15px;
+  }
+  .np-player__from,
+  .np-player__subtitle {
+    font-size: 13px;
+  }
+
+  /* Track rows: the icon/number columns and the tag row's fixed left
+     indent were both sized against the desktop tracklist column (roughly
+     700px+ wide). At full phone width they leave barely any room for the
+     title/subtitle, forcing 4-5 line wraps — shrinking the fixed columns
+     and dropping the indent gives the text back most of the row's width. */
+  .track__main {
+    gap: 10px;
+  }
+  /* .np-list .track__icon (below, desktop) beats a bare .track__icon on
+     specificity regardless of source order — this has to match it to win. */
+  .np-list .track__icon {
+    width: 40px;
+  }
+  /* .track__number and .track__eq must stay equal width — they swap places
+     in the same column as the now-playing highlight moves between rows. */
+  .track__number,
+  .track__eq {
+    width: 14px;
+  }
+  .track__number {
+    font-size: 11px;
+  }
+  .track__title {
+    font-size: 16px;
+  }
+  .track__subtitle {
+    font-size: 13px;
+  }
+  .track__runtime {
+    font-size: 12px;
+  }
+  /* Aligned with .track__text's left edge, not the row's — measured live
+     rather than hand-calculated, since .np-list .track__icon's own
+     margin-left plus .track__icon's -4px margin-right both factor in. */
+  .track__tags {
+    margin-left: 72.5px;
+  }
+  .track__pill {
+    font-size: 12px;
+    padding: 3px 9px 4.5px;
   }
 }

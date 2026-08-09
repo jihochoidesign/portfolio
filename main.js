@@ -248,9 +248,15 @@ function initTracklistAlign() {
   if (!tag || !head || !label) return;
 
   const baseMarginTop = parseFloat(getComputedStyle(head).marginTop) || 0;
+  // Matches the .np breakpoint that stacks the two columns — aligning the
+  // headers only makes sense side by side. Once the player sits above the
+  // list entirely, the tag is far above the label and the computed delta
+  // would be a large negative margin dragging the list up into the panel.
+  const stackQuery = window.matchMedia('(max-width: 860px)');
 
   const align = () => {
     head.style.marginTop = baseMarginTop + 'px'; // reset before measuring
+    if (stackQuery.matches) return;
     const delta = tag.getBoundingClientRect().top - label.getBoundingClientRect().top;
     head.style.marginTop = (baseMarginTop + delta) + 'px';
   };
