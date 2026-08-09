@@ -2864,6 +2864,28 @@ body.is-panel-collapsed .robotwall__desc {
   height: auto;
 }
 
+/* Mobile: side by side, the row shares its width three ways and Concept
+   Illustration (the narrowest source image) lands at ~33px — too small to
+   read. One image per row instead, each 80px wider than it rendered at in
+   the desktop row (33→113, 113→193), not stretched to fill the column
+   (that would blow the 3-character sheets up far past their own detail).
+   flex-grow needs !important: it's set inline per-figure in JS for the
+   desktop row-share sizing, which otherwise beats this external rule. */
+@media (max-width: 860px) {
+  .project__chapter-placeholders {
+    flex-direction: column;
+    align-items: center;
+  }
+  .project__chapter-placeholder-figure--fill {
+    flex: 0 0 auto;
+    flex-grow: 0 !important;
+    width: 113px;
+  }
+  .project__chapter-placeholder-figure--fill:not(:first-child) {
+    width: 193px;
+  }
+}
+
 .project__chapter-placeholders-subtitle {
   align-self: flex-start;          /* left-aligned to the row, not the page column */
   font-family: "tondo", sans-serif;
@@ -2950,6 +2972,20 @@ body.is-panel-collapsed .scrubcar-group {
    images' own share of the width automatically — they scale down to match. */
 .scrubcar__imgs--wide-gap {
   gap: 134px;
+}
+
+/* 134px is tuned for the desktop column — on a phone-width row it eats
+   almost all the space, squeezing the 3 images down to slivers pinned to
+   the edges. Same gap as the other slides there instead. */
+@media (max-width: 860px) {
+  .scrubcar__imgs--wide-gap {
+    gap: 46px;
+  }
+  /* Last stop only (3rd .scrubcar__slide, the plain turnaround set) — a
+     tighter gap than the other slides' 46px. */
+  .scrubcar__slide:nth-child(3) .scrubcar__imgs {
+    gap: 10px;
+  }
 }
 
 .scrubcar__caption {
