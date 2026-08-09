@@ -2561,6 +2561,12 @@ function initClockTabs() {
 
   const COLLAPSED_WIDTH = 64; // matches .clock-tab's collapsed flex-basis
 
+  // Below this, .about-layout has already stacked to one column (see the
+  // matching CSS breakpoint) — three collapsed vertical strips don't fit
+  // side by side there, so the accordion is dropped entirely in favor of
+  // all three tabs open at once, each its own full-width row.
+  const stackQuery = window.matchMedia('(max-width: 860px)');
+
   // CSS alone (flex:0 0 84px → flex:1 1 0%) can't transition this smoothly:
   // flex-grow (0→1) isn't covered by a flex-basis transition and just jumps,
   // and 84px→0% can't interpolate since the two states are different units.
@@ -2585,23 +2591,54 @@ function initClockTabs() {
     if (gallery) gallery.scrollLeft = 0;
   }
 
-  // Lock in the initial layout's widths too, so the very first open tab
-  // (marked is-open in the HTML) is already using explicit px, not the
-  // flex:1 1 0% CSS fallback — keeps behavior consistent from page load.
-  open(document.querySelector('[data-clock-tabs] .clock-tab.is-open') || tabs[0]);
+  // Stacked layout: every tab open, sized entirely by CSS (clear the inline
+  // px flex-basis the row layout relies on so it doesn't fight the column).
+  function openAllStacked() {
+    tabs.forEach((t) => {
+      t.classList.add('is-open');
+      t.setAttribute('aria-expanded', 'true');
+      t.style.flexBasis = '';
+    });
+  }
+
+  function applyLayout() {
+    if (stackQuery.matches) {
+      openAllStacked();
+    } else {
+      // Lock in the initial layout's widths too, so the very first open tab
+      // (marked is-open in the HTML) is already using explicit px, not the
+      // flex:1 1 0% CSS fallback — keeps behavior consistent from page load.
+      open(document.querySelector('[data-clock-tabs] .clock-tab.is-open') || tabs[0]);
+    }
+  }
+
+  applyLayout();
+  // Re-applied on resize so dragging the window across the breakpoint (the
+  // way this was tested) doesn't leave stale inline widths from one mode
+  // fighting the other mode's CSS.
+  window.addEventListener('resize', applyLayout);
+
+  // Hover-capable pointer (mouse/trackpad) gets hover-to-open; touch always
+  // gets tap-to-open via the click listener below instead — checking this
+  // once up front avoids relying on mouseenter simply never firing on touch,
+  // which isn't reliably true across all mobile browsers.
+  const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
   tabs.forEach((tab) => {
-    // Hover opens it (mouse only — mouseenter never fires on touch, so
-    // click stays as the way in on touch devices).
-    tab.addEventListener('mouseenter', () => {
-      if (!tab.classList.contains('is-open')) open(tab);
-    });
+    if (canHover) {
+      tab.addEventListener('mouseenter', () => {
+        if (stackQuery.matches) return; // all open, nothing to toggle
+        if (!tab.classList.contains('is-open')) open(tab);
+      });
+    }
     tab.addEventListener('click', () => {
+      if (stackQuery.matches) return;
       if (!tab.classList.contains('is-open')) open(tab);
     });
     tab.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
+        if (stackQuery.matches) return;
         if (!tab.classList.contains('is-open')) open(tab);
       }
     });

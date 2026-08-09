@@ -3639,6 +3639,67 @@ body.is-panel-collapsed .translate-row-split .project__chapter-placeholders--tra
   top: -0.6px;
 }
 
+/* Stack the profile card above the content column on narrow screens — same
+   860px breakpoint the project pages already stack at (see .np media query)
+   for consistency. Desktop's sticky rail + 1.1x container scale both assume
+   there's a tall right column to pin against and spare width to grow into;
+   neither holds once the layout is one column, so both are turned off here
+   rather than fighting to preserve them. */
+@media (max-width: 860px) {
+  .about-layout {
+    flex-direction: column;
+    min-height: 0;
+    margin-top: 0;
+  }
+  .about-rail {
+    position: static;
+    height: auto;
+    margin-top: 0;
+    align-items: center;
+    width: 100%;
+  }
+  .about-container {
+    transform: none;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  /* Compensates for .about-container's desktop scale(1.1) — with that
+     turned off above, the button's own inverse-scale would otherwise
+     shrink it to ~91% for no reason. */
+  body.page-about .home-button--dark {
+    transform: none;
+  }
+  .about-right {
+    width: 100%;
+    padding-top: var(--space-6);
+  }
+
+  /* The hover/tap accordion only makes sense when three collapsed strips
+     can sit side by side — once stacked to one column there's no room for
+     that, so every tab is forced open (initClockTabs skips the accordion
+     JS and adds .is-open to all three when this same breakpoint matches)
+     and laid out as its own full-width row instead. */
+  .clock-tabs {
+    flex-direction: column;
+    height: auto;
+  }
+  .clock-tab.is-open {
+    flex: none;
+    width: 100%;
+    height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-container {
+    max-width: 100%;
+  }
+  .clock-tab.is-open {
+    height: 220px;
+  }
+}
+
 /* =========================================
    NOW-PLAYING SPLIT LAYOUT (tracklist page)
    Left  = dark "now playing" player for the featured track.
