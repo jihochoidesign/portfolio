@@ -1683,6 +1683,7 @@ body.is-panel-collapsed .np-chapter::before {
   margin-left: -23.85%;           /* half the card's width → centred on the fan */
   transform-origin: 50% 50%;      /* cards pivot about their own middle */
   perspective: 1200px;            /* depth of the hover-flip — larger = subtler */
+  -webkit-perspective: 1200px;
   cursor: pointer;                /* a side card clicks straight to the middle */
   transition: transform 0.46s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.46s ease;
 }
@@ -1717,6 +1718,7 @@ body.is-panel-collapsed .fan-card {
   position: relative;
   width: 100%;
   transform-style: preserve-3d;   /* keep the two faces in 3D space */
+  -webkit-transform-style: preserve-3d;
   transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
@@ -1725,6 +1727,7 @@ body.is-panel-collapsed .fan-card {
    face-front. Cards with no reverse artwork carry --noflip and never get it. */
 .fan-card.is-flipped .fan-card__inner {
   transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
 }
 
 .fan-card__face {
@@ -1742,6 +1745,7 @@ body.is-panel-collapsed .fan-card {
   position: absolute;
   inset: 0;
   transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1777,7 +1781,7 @@ body.is-panel-collapsed .fan-card {
   display: block;
   width: fit-content;
   max-width: 100%;
-  text-align: center;
+  text-align: left;
   padding: 0;
   border: none;
   border-radius: 0;

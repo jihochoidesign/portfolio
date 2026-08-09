@@ -1430,6 +1430,12 @@ function initOneCardFan(fanEl) {
   const FLIP_MS = 500;     // hover dwell before the centre card turns over
   const SLOP = 6;          // px of travel under which a press counts as a click
 
+  // No hover on mobile, so the flip has to be tap/drag-triggered instead —
+  // easy to land on by accident and awkward to hold. More useful there to
+  // just skip the front (character silhouette) and leave the descriptive
+  // back always showing.
+  const noFlipQuery = window.matchMedia('(max-width: 860px)');
+
   // Slots either side of centre that are on screen, and how far apart they sit.
   // Retracting the chapter panel widens the body column by ~176px, which is room
   // for two more cards — so the fan runs five wide there and three while the
@@ -1507,6 +1513,12 @@ function initOneCardFan(fanEl) {
     });
   }
 
+  // Mobile: set every card with a back to it before the first paint, so
+  // there's no front-to-back flip animation on load — it's just there.
+  if (noFlipQuery.matches) {
+    cards.forEach(el => { if (!el.classList.contains('fan-card--noflip')) el.classList.add('is-flipped'); });
+  }
+
   // First paint lands in place rather than fanning out of a pile.
   cards.forEach(el => el.classList.add('fan-card--noanim'));
   render();
@@ -1528,6 +1540,7 @@ function initOneCardFan(fanEl) {
   function unflip() {
     clearTimeout(flipTimer);
     flipTimer = null;
+    if (noFlipQuery.matches) return;   // mobile: back stays showing, permanently
     cards.forEach(el => el.classList.remove('is-flipped'));
   }
 
