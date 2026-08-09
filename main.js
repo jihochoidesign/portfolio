@@ -2292,15 +2292,32 @@ function holdScrollAnchor(el, wantTop, ms) {
   raf = requestAnimationFrame(loop);
 }
 
+// Below this, .project-shell's expanded left track (minmax(350px, 430px))
+// leaves the article column at 0 width (see the grid-template-columns
+// comment on .project-shell) — there's no usable expanded state on a phone,
+// so the panel always starts collapsed there regardless of whatever
+// preference was remembered from a wider screen.
+const PANEL_STACK_QUERY = window.matchMedia('(max-width: 860px)');
+
+function readStoredPanelCollapsed() {
+  try { return localStorage.getItem(PANEL_KEY) === '1'; } catch (e) { return false; }
+}
+
 function initPanelToggle() {
   const btn = document.querySelector('[data-panel-toggle]');
   if (!btn) return;                       // not a project page
   // Re-read the stored state on every arrival: a seamless navigation replaces
   // the <body> (and its class) with the incoming page's, which would otherwise
   // silently spring the panel back open.
-  let collapsed = false;
-  try { collapsed = localStorage.getItem(PANEL_KEY) === '1'; } catch (e) {}
+  const collapsed = PANEL_STACK_QUERY.matches ? true : readStoredPanelCollapsed();
   applyPanelState(collapsed);
+
+  // Keeps the panel correct if the window is resized across the breakpoint
+  // (rather than only on the next full page load) — forced collapsed going
+  // narrow, restored to the remembered preference coming back out.
+  PANEL_STACK_QUERY.addEventListener('change', (e) => {
+    applyPanelState(e.matches ? true : readStoredPanelCollapsed());
+  });
 
   // The button is replaced along with the DOM on each arrival, so this listener
   // goes with it — no teardown needed.
@@ -2371,6 +2388,14 @@ function syncPanelHeight() {
     window.addEventListener('resize', save);
   } else if (panel.classList.contains('np-player--project')) {
     const apply = () => {
+      // Below the stacking breakpoint the two pages' panels are deliberately
+      // different shapes — the tracklist's carousel card vs. this page's
+      // compact bar — so there's nothing to match heights against; syncing
+      // anyway would stretch the compact bar back out to carousel height.
+      if (window.matchMedia('(max-width: 860px)').matches) {
+        panel.style.height = '';
+        return;
+      }
       let d = null;
       try { d = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) {}
       const sameViewport = d &&

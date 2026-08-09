@@ -1275,6 +1275,67 @@ body.is-panel-collapsed .np-chapter::before {
   display: none;
 }
 
+/* Below this, the desktop two-column grid is why the article was crushed to
+   0 width in the first place (see initPanelToggle's PANEL_STACK_QUERY comment
+   in main.js) — its expanded track alone (minmax(350px, 430px)) already eats
+   a whole phone screen. Single column instead: the panel becomes a normal
+   block sitting above the article. There's no expandable panel on mobile at
+   all — just a fixed compact bar (home button + chapter-progress dots, laid
+   out horizontally instead of the desktop rail's vertical column) — so the
+   toggle button, project title, divider and "next project" link are simply
+   dropped rather than hidden-until-expanded; there's no expanded state to
+   reveal them in. Placed after every body.is-panel-collapsed rule above so
+   it can actually win the cascade against them at equal specificity. */
+@media (max-width: 860px) {
+  /* minmax(0, 1fr), not a bare 1fr — .page's own fixed width (920px
+     expanded, 1196.4px collapsed, see above) becomes this track's automatic
+     minimum otherwise, same trap as the tracklist's .np grid earlier. */
+  .project-shell,
+  body.is-panel-collapsed .project-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .project-shell .page,
+  body.is-panel-collapsed .project-shell .page {
+    width: 100%;
+  }
+
+  body.page-project .np-player--project {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 14px;
+    padding: 9px clamp(24px, 2.4vw, 36px);
+    border-bottom: 1.5px solid #ebf7f7;
+  }
+  .np-panel-toggle,
+  .np-project,
+  .np-project__rule,
+  .np-panel-next {
+    display: none;
+  }
+  body.is-panel-collapsed .np-player__top {
+    justify-content: flex-start;
+    margin: 0;
+  }
+  body.is-panel-collapsed .np-player__top .home-button {
+    display: flex;
+    width: 32px;
+    height: 32px;
+  }
+  body.is-panel-collapsed .np-player__top .home-button svg {
+    width: 16px;
+    height: 16px;
+  }
+  /* Reuses the existing collapsed-rail dot styling (tick size/color/active
+     state) below — only the container's own direction changes, from a
+     vertical column of ticks to a horizontal row of them. */
+  body.is-panel-collapsed .np-chapters {
+    flex-direction: row;
+    margin: 0;
+    gap: 10px;
+  }
+}
+
 /* --- Continuous-scroll chapter sections --- */
 /* The orange hairline that used to be the now-playing bar's top border stays
    on as the divider between the page header and the first chapter. The 9px
@@ -2532,6 +2593,23 @@ body.is-panel-collapsed .fan-card {
 .project__chapter-nt-figure .project__chapter-caption + .project__chapter-caption {
   margin-top: 2px;
   font-size: 15px;
+}
+/* Squeezing 3-4 of these side by side (see e.g. the "Route Representations"
+   comparison) leaves each one just a sliver wide on a phone — barely enough
+   for the image, and the evaluation bullet lists next to some of them wrap
+   to one word per line. Each figure gets its own full-width row instead. */
+@media (max-width: 860px) {
+  .project__chapter-nt-row {
+    flex-direction: column;
+  }
+  /* Some rows (the pictogram comparison) fix each figure's width with an
+     inline style (width: calc(25% - 15px)) rather than flex-grow — inline
+     styles beat any plain external rule, column direction or not, so
+     without !important these stay stuck at a quarter-width sliver even
+     after the row above switches to stacking them. */
+  .project__chapter-nt-figure {
+    width: 100% !important;
+  }
 }
 /* Fabrication photo wall (Malibu-Baddie, chapter 01) — pinned polaroid cards
    tiled as justified rows, same sizing trick as the old collage: each card's
@@ -4473,5 +4551,37 @@ body.page-project .np-player--project {
   .track__pill {
     font-size: 12px;
     padding: 3px 9px 4.5px;
+  }
+}
+
+/* Project-page article type, scaled down for phone width. Desktop's sizes
+   were set against a ~920px column; at full phone width the same sizes read
+   oversized relative to how little text fits per line. Appended at the very
+   end of the file (rather than grouped with the other project-page mobile
+   rules above) purely so it's guaranteed to load after every rule below it
+   that shares equal specificity — same class of ordering bug hit repeatedly
+   while building this page's mobile layout. */
+@media (max-width: 860px) {
+  .project__label {
+    font-size: 12px;
+  }
+  .project__title {
+    font-size: 28px;
+  }
+  .project__chapter-heading {
+    font-size: 24px;
+  }
+  .project__chapter-description {
+    font-size: 16px;
+  }
+  .project__chapter-description--flaw-subtitle {
+    font-size: 20px;
+  }
+  .project__chapter-description--flaw-subtitle:has(.project__chapter-step-badge) {
+    font-size: 16px;
+  }
+  .project__tag-label,
+  .project__tag-value {
+    font-size: 12px;
   }
 }
