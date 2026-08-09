@@ -1299,13 +1299,34 @@ body.is-panel-collapsed .np-chapter::before {
     width: 100%;
   }
 
+  /* .project-shell has overflow-x: clip (needed to contain .card-fan's
+     horizontal spill — see its own comment) — combined with position:sticky
+     on a descendant, that's a known WebKit rendering bug where the sticky
+     element gets visually clipped mid-scroll instead of staying whole.
+     position:fixed sidesteps it entirely: fixed is positioned against the
+     viewport directly, not constrained by any ancestor's overflow box.
+     Trade-off: fixed is out of flow, so it no longer reserves its own
+     height — padding-top on the shell (43px, this bar's real height) below
+     stands in for that so the article doesn't start underneath it. */
+  body.page-project .np-player-col {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+  }
+  body.page-project .project-shell {
+    padding-top: 43px;
+  }
   body.page-project .np-player--project {
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
     gap: 14px;
-    padding: 9px clamp(24px, 2.4vw, 36px);
+    padding: 4px clamp(24px, 2.4vw, 36px);
     border-bottom: 1.5px solid #ebf7f7;
+    /* background: white is set further down, after the later same-specificity
+       rule that would otherwise win the tie and reset it to transparent. */
   }
   .np-panel-toggle,
   .np-project,
@@ -2875,6 +2896,13 @@ body.is-panel-collapsed .scrubcar-group {
 .shelf__title--scrubcar {
   text-align: left;
 }
+/* 140px reads as a big dead gap on a phone screen — same purpose (replacing
+   the space a now-hidden title used to take), smaller number. */
+@media (max-width: 860px) {
+  .scrubcar {
+    margin-top: 40px;
+  }
+}
 
 /* All slides stack in one grid cell so the stage sizes to the tallest slide
    and slides can crossfade in place. */
@@ -3964,6 +3992,19 @@ body.page-tracklist .np-player {
   box-shadow: none;
 }
 
+/* Re-asserts what the mobile project-page rule above already set — this
+   selector (position: static, padding-bottom: 16px) is identical
+   specificity and lands later in the file, so it silently wins the tie
+   otherwise, both undoing the sticky bar and puffing the bottom padding
+   back out past the top's. */
+@media (max-width: 860px) {
+  body.page-project .np-player--project {
+    position: sticky;
+    top: 0;
+    padding-bottom: 4px;
+  }
+}
+
 /* If the chapter list ever outgrows the screen, cap the panel just inside the
    viewport (12px frame top and bottom) and let .np-chapters (min-height:0,
    overflow-y:auto) scroll internally instead of the panel overflowing the rail. */
@@ -3976,6 +4017,15 @@ body.page-project .np-player--project {
      into the (now white) page background instead of standing out as a card. */
   background: transparent;
   box-shadow: none;
+}
+
+/* Sticky on mobile (see the matching rule above) means article content
+   scrolls up underneath this bar — transparent here would let it show
+   through instead of the bar reading as a solid strip pinned over it. */
+@media (max-width: 860px) {
+  body.page-project .np-player--project {
+    background: #ffffff;
+  }
 }
 
 .np-carousel {
