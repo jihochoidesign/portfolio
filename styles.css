@@ -2714,6 +2714,48 @@ body.is-panel-collapsed .robotwall__desc {
   }
 }
 
+/* These captions only ever reveal on :hover — fine with a mouse, but there's
+   no equivalent gesture on a touchscreen, so on mobile they were either
+   never visible or stuck mid-slide from whatever the last touch happened to
+   land on (what looked like a caption "cut off"). Making it permanently
+   visible isn't enough on its own, though: it's still position:absolute
+   inside a card whose height is set by the photo's own aspect ratio (see
+   the flex-grow trick above), clipped by .robotwall__paper's overflow —
+   a caption longer than that photo is tall overflows upward and off the
+   top, cut off exactly like before just now always-on instead of hover-only.
+   Flowing it in normal layout below the photo instead lets the card grow
+   to fit however much text a given caption actually needs. Rows no longer
+   share a uniform height once captions vary in length — align-items:
+   flex-start (rather than the default stretch) keeps that from leaving
+   awkward empty cream space under the shorter ones. */
+@media (max-width: 860px) {
+  /* Also drops from 4 photos per row to 2 — at full phone width, 4 across
+     puts each photo at roughly 85px, too small to actually make out.
+     flex-basis is set here (not inline, so this wins normally) at exactly
+     half the row each; the ratio-based flex-grow is still set inline per
+     card (see main.js) and inline beats external for that one sub-property
+     regardless — but with two 50% bases already filling the wrapped line
+     completely, there's no leftover space left for that grow to act on, so
+     it's naturally neutralized rather than fought directly. */
+  .robotwall__row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    row-gap: 20px;
+  }
+  .robotwall__card {
+    flex-basis: calc(50% - 0.5px);
+    max-width: calc(50% - 0.5px);
+  }
+  .robotwall__paper {
+    overflow: visible;
+  }
+  .robotwall__caption {
+    position: static;
+    transform: none;
+    padding-top: 8px;
+  }
+}
+
 /* Tag 3's own pill was removed (content kept), so this paragraph no longer
    collapses against a tag's margin-bottom for its top gap — it now follows
    the previous section's paragraph directly, so it gets the standard 34px
