@@ -1158,6 +1158,10 @@ body.page-domicile .project__title--pixel {
   flex-shrink: 0;
   color: #0caaa2;
 }
+.np-panel-next span {
+  position: relative;
+  top: -1px;
+}
 body.is-panel-collapsed .np-panel-next {
   display: none;
 }
