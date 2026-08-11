@@ -936,7 +936,7 @@ body[data-project="metro"] .project__label {
 /* Panel retracted → main body 30% wider (920px × 1.3 = 1196px), still capped
    by max-width:100% so it can never overflow a column narrower than that. */
 body.is-panel-collapsed .project-shell .page {
-  width: 1196.4px;   /* 1196px × 0.9, +20, +100px */
+  width: 1126.4px;   /* 1196px × 0.9, +20, +100px, −20px, −50px */
 }
 
 /* --- Project header: cover + title + credits --- */
