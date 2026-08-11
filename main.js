@@ -233,37 +233,58 @@ function initTrackPlayer() {
 initTrackPlayer();
 
 // ===========================================================
-// TRACKLIST — align the album heading with the "now playing" tag
+// TRACKLIST — vertically center the right column on the player panel
 // ===========================================================
-// The left player panel is flex-centered in the viewport while the right
-// column (album heading + tracklist) sits at a fixed padding from the page
-// top, so the two rarely land on the same line by default. Nudge the heading
-// block's margin so the ALBUM label's top matches the now-playing tag's top —
-// measured live (rather than a fixed magic number) so it still lines up after
-// a resize or a late web-font swap.
+// The left player panel is flex-centered in the viewport (.np-player-col),
+// but its own height varies per project (video vs. image vs. carousel,
+// description length) — there's no fixed number to center the right column
+// against. Nudge .np-list's own margin so its vertical center matches
+// .np-player's actual rendered center — measured live, so it still holds
+// after a resize, a late web-font swap, or switching tracks (which changes
+// both the player's height and which tracklist row is expanded).
+//
+// The margin goes on .np-list itself, not a child inside it: .np-list is a
+// grid item aligned to its row's start, so margin-top on the ITEM just
+// repositions its whole box (its own height is unaffected, since margin
+// isn't part of the border box getBoundingClientRect measures). Margin-top
+// on a child inside it instead would stretch .np-list's own height by that
+// same amount (flex items don't collapse margins), moving the very center
+// being solved for — a self-referential result that never converges.
 function initTracklistAlign() {
-  const tag   = document.querySelector('.np-player__nowplaying');
-  const head  = document.querySelector('.np-list__head');
-  const label = document.querySelector('.album-meta__label');
-  if (!tag || !head || !label) return;
+  const list   = document.querySelector('.np-list');
+  const player = document.querySelector('.np-player');
+  if (!list || !player) return;
 
-  const baseMarginTop = parseFloat(getComputedStyle(head).marginTop) || 0;
-  // Matches the .np breakpoint that stacks the two columns — aligning the
-  // headers only makes sense side by side. Once the player sits above the
-  // list entirely, the tag is far above the label and the computed delta
-  // would be a large negative margin dragging the list up into the panel.
+  const baseMarginTop = parseFloat(getComputedStyle(list).marginTop) || 0;
+  // Matches the .np breakpoint that stacks the two columns — centering only
+  // makes sense side by side. Once the player sits above the list entirely,
+  // centering the list against it would just misplace the list arbitrarily.
   const stackQuery = window.matchMedia('(max-width: 860px)');
 
   const align = () => {
-    head.style.marginTop = baseMarginTop + 'px'; // reset before measuring
+    list.style.marginTop = baseMarginTop + 'px'; // reset before measuring
     if (stackQuery.matches) return;
-    const delta = tag.getBoundingClientRect().top - label.getBoundingClientRect().top;
-    head.style.marginTop = (baseMarginTop + delta) + 'px';
+    const playerRect = player.getBoundingClientRect();
+    const listRect = list.getBoundingClientRect();
+    const delta = (playerRect.top + playerRect.height / 2) - (listRect.top + listRect.height / 2);
+    list.style.marginTop = (baseMarginTop + delta) + 'px';
   };
 
   align();
   window.addEventListener('resize', align);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(align);
+  // Re-measure whenever the player's own height changes (switching tracks
+  // swaps its image/video/description) or the tracklist's does (the active
+  // row's expanded tags) — observing .np-tracks rather than .np-list itself
+  // avoids the same feedback loop: align() adjusts .np-list's position, and
+  // once content inside it (the tracks) is what's watched instead, that's
+  // unaffected by the margin change.
+  if (window.ResizeObserver) {
+    const tracks = document.querySelector('.np-tracks');
+    const ro = new ResizeObserver(align);
+    ro.observe(player);
+    if (tracks) ro.observe(tracks);
+  }
 }
 initTracklistAlign();
 
@@ -661,7 +682,7 @@ function initChapters() {
           `</div>`
         : (isMetro && c.title === 'Project Overview')
         ? `<p class="project__chapter-description" style="margin-bottom: 70px;"><span class="project__chapter-description--flaw-subtitle" style="line-height: 41.8px;">The Project Prompt as Follows...</span>Redesigning Abu Dhabi&rsquo;s transit map to communicate a <strong>weekend-only</strong> line and an <strong>express route</strong> skipping select stations.</p>` +
-          `<p class="project__chapter-description project__chapter-description--label" style="font-weight: bold;">Problem Statement</p>` +
+          `<p class="project__chapter-description project__chapter-description--label">PROBLEM STATEMENT</p>` +
           `<p class="project__chapter-description" style="color: #000000; font-size: 24px; margin-bottom: 20px;">"How might we design route-specific behaviors so they are legible to an international base?"</p>` +
           `<p class="project__chapter-description">Abu Dhabi's metro launches with no established rider literacy and an exceptionally international passenger base. So, the transit map must clearly communicate complex route behaviors, regardless of language.</p>`
         : (isMetro && c.title === 'Benchmarking')
@@ -781,7 +802,7 @@ function initChapters() {
             '00-02 DESIGN INTERVENTION'
           ].map((label, idx) =>
             (idx === 0
-              ? `<p class="project__chapter-description project__chapter-description--label" style="font-weight: bold;">PROBLEM STATEMENT</p>` +
+              ? `<p class="project__chapter-description project__chapter-description--label">PROBLEM STATEMENT</p>` +
                 `<p class="project__chapter-description" style="color: #000000; font-size: 24px; margin-bottom: 10px;">"How might we design experiences that break through passive media consumption to foster empathy?"</p>`
               : `<p class="project__chapter-description" style="margin-bottom: 140px;">Passive media consumption of displacement and suffering has left us desensitized to human tragedy. Our project doesn't demand activism, but rather creates space for personal confrontation with the real cost of conflict.</p>` +
                 `<p class="project__chapter-description"><span class="project__chapter-description--flaw-subtitle" style="text-transform: none; color: #000000; font-size: 28px; line-height: 41.8px;"><span class="project__chapter-step-badge">1</span>How can we make people care?</span></p>` +

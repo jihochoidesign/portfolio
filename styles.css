@@ -20,8 +20,8 @@
   --color-project-3: #457b9d; /* Metro, rerouted */
 
   /* Fonts */
-  --font-heading: "tondo", sans-serif;
-  --font-body: "tondo", sans-serif;
+  --font-heading: "work-sans", sans-serif;
+  --font-body: "work-sans", sans-serif;
 
   /* Spacing scale (multiples of 4px) */
   --space-1: 4px;
@@ -66,6 +66,8 @@
 body {
   margin: 0;
   font-family: var(--font-body);
+  font-weight: 400;
+  font-style: normal;
   font-size: 16px;   /* body-text floor (1rem) — UX min for readable copy */
   background: var(--color-bg);
   color: var(--color-text);
@@ -90,7 +92,7 @@ a {
 body.page-tracklist {
   background: #ffffff;
   padding: 12px 0 12px 12px;   /* right edge matches the 0px column gap */
-  font-family: "tondo", sans-serif;
+  font-family: "work-sans", sans-serif;
   font-weight: 400;
   font-style: normal;
 }
@@ -110,7 +112,7 @@ body.page-tracklist {
    uses. */
 body.page-about {
   background: #ffffff;
-  font-family: "tondo", sans-serif;
+  font-family: "work-sans", sans-serif;
   font-weight: 400;
   font-style: normal;
 }
@@ -221,7 +223,7 @@ body.page-about .home-button--dark {
   font-size: 15px;
   color: #1cb5b5;
   letter-spacing: 0.12em;
-  font-weight: 500;
+  font-weight: 400;
   margin: 0;
 }
 
@@ -300,7 +302,7 @@ body.page-about .home-button--dark {
   background: #6dccbe;
   color: #fff;
   font-size: calc(1rem + 5px);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: 0.02em;
   display: flex;
   align-items: center;
@@ -328,8 +330,7 @@ body.page-about .home-button--dark {
 
 .album-meta__artist-text strong {
   font-size: 15px;
-  font-weight: 700;
-  text-transform: uppercase;
+  font-weight: 400;
   color: #0c0c0c;
 }
 
@@ -342,7 +343,7 @@ body.page-about .home-button--dark {
 .album-meta__about {
   margin-top: 10px;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 400;
   color: #0caaa2;
 }
 
@@ -366,7 +367,7 @@ body.page-about .home-button--dark {
 
 .player__title {
   font-size: 1.5rem;
-  font-weight: bold;
+  font-weight: 400;
   line-height: 1.1;
 }
 
@@ -491,7 +492,7 @@ body.page-about .home-button--dark {
 
 .track__title {
   font-size: 19px;
-  font-weight: 700;
+  font-weight: 400;
   margin: 0;
   color: #0c0c0c;
 }
@@ -674,7 +675,7 @@ body.page-about .home-button--dark {
    for the few things that are genuinely its own). Structural panel/page styling
    hangs off .page-project so all four project pages render identically. */
 body.page-project {
-  font-family: "tondo", sans-serif;
+  font-family: "work-sans", sans-serif;
   font-weight: 400;
   font-style: normal;
   background: #ffffff;             /* same as the tracklist page background */
@@ -734,7 +735,7 @@ body.page-domicile .project__title--pixel {
    above; the page-header counterpart lives with the other .project__title
    modifiers further down, and has to stay there — see the note on it. */
 .np-project__title--deck {
-  font-family: "tondo", sans-serif;
+  font-family: "work-sans", sans-serif;
   font-weight: 700;
   font-style: normal;
   font-size: clamp(calc(2.2rem - 7px), calc(3.6vw - 7px), calc(2.9rem - 7px));  /* base clamp − 7px */
@@ -981,7 +982,7 @@ body.is-panel-collapsed .project-shell .page {
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: #1cb5b5;
-  font-weight: 500;
+  font-weight: 400;
   margin: 0 0 2.5px;
 }
 
@@ -996,8 +997,9 @@ body.is-panel-collapsed .project-shell .page {
   margin: 0 0 14.5px;
 }
 
-/* Domicile keeps the pixel display face; every other project title is tondo
-   (inherited from .project__title's h1 default) via the rule below. */
+/* Domicile keeps the pixel display face; every other project title is
+   work-sans (inherited from .project__title's h1 default) via the rule
+   below. */
 body.page-domicile .project__title--pixel {
   font-family: "yoon-px-pixman", sans-serif;
   font-weight: 400;
@@ -1012,7 +1014,7 @@ body.page-domicile .project__title--pixel {
    file, the base rule's margin silently wins and the title → tags gap here
    stops responding entirely. */
 .project__title--deck {
-  font-family: "tondo", sans-serif;
+  font-family: "work-sans", sans-serif;
   font-weight: 700;
   font-style: normal;
   -webkit-text-stroke: 0;
@@ -1056,7 +1058,7 @@ body.page-domicile .project__title--pixel {
   font-size: 14px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  font-weight: 500;
+  font-weight: 400;
   color: #41c1ce;
 }
 
@@ -1796,7 +1798,7 @@ body.is-panel-collapsed .fan-card {
 }
 
 .project__chapter-heading {
-  font-family: "tondo", sans-serif;
+  font-family: "work-sans", sans-serif;
   font-weight: 700;
   font-style: normal;
   -webkit-text-stroke: 0;          /* only the pixel face needs the fake-bold stroke */
@@ -1826,12 +1828,12 @@ body.is-panel-collapsed .fan-card {
   border: none;
   border-radius: 0;
   background: transparent;
-  font-family: "tondo", sans-serif;
+  font-family: "work-sans", sans-serif;
   font-size: 19px;
   letter-spacing: normal;
   text-transform: uppercase;
   color: #0caaa2;
-  font-weight: 700;
+  font-weight: 400;
   line-height: 1;
   margin: 6px 0 23.3px;
 }
@@ -1873,6 +1875,13 @@ body.is-panel-collapsed .fan-card {
   line-height: 1.6;
   color: #424242;
   margin: 0 0 20px;
+}
+
+/* In-copy emphasis (<strong>) reads as italic instead of the browser's
+   default bold — matches the site's move away from bold weight elsewhere. */
+.project__chapter-description strong {
+  font-weight: 400;
+  font-style: italic;
 }
 
 /* Plain body text with a highlighted background — NOT a pill tag: no border,
@@ -1928,7 +1937,7 @@ body.is-panel-collapsed .fan-card {
 
 .project__chapter-quotecallout-mark {
   display: block;
-  font-family: "tondo", sans-serif;
+  font-family: "work-sans", sans-serif;
   font-size: 2.5rem;
   line-height: 1;
   color: #0caaa2;
@@ -1951,7 +1960,7 @@ body.is-panel-collapsed .fan-card {
 .project__chapter-quotecallout-author {
   font-size: 15px;
   color: #0caaa2;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .project__chapter-quotecallout-research {
@@ -1998,7 +2007,7 @@ body.is-panel-collapsed .fan-card {
 }
 .voice-eval__name {
   font-size: 0.95rem;
-  font-weight: 700;
+  font-weight: 400;
   color: #222;
   margin: 0 0 12px;
 }
@@ -2190,10 +2199,10 @@ body.is-panel-collapsed .fan-card {
 }
 
 .shelf__title {
-  font-family: "tondo", sans-serif;
+  font-family: "work-sans", sans-serif;
   font-size: 19px;
   letter-spacing: normal;
-  font-weight: 500;
+  font-weight: 400;
   color: #0caaa2;
   margin: 0 0 12px;
 }
@@ -2215,9 +2224,9 @@ body.is-panel-collapsed .fan-card {
   z-index: 1000;
   pointer-events: none;
   transform: translate(16px, -50%);
-  font-family: "tondo", sans-serif;
+  font-family: "work-sans", sans-serif;
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 400;
   color: #0caaa2;
   background: #fff;
   padding: 4.5px 14.75px;
@@ -2496,7 +2505,7 @@ body.is-panel-collapsed .fan-card {
   color: #fc9b7a;                  /* that tag's own text color — white wouldn't read on this light fill */
   font-family: inherit;
   font-size: 0.85rem;
-  font-weight: 700;
+  font-weight: 400;
   /* Tight line-height keeps the text's own line box close to the glyph size,
      leaving the flex box's align-items/justify-content free to actually do
      the centering against the full 22px circle — pinning line-height to the
@@ -2513,7 +2522,7 @@ body.is-panel-collapsed .fan-card {
   display: block;
   color: #000000;
   font-size: 28px;
-  font-weight: 700;
+  font-weight: 400;
   margin-bottom: 6.5px;
 }
 
@@ -2576,10 +2585,10 @@ body.is-panel-collapsed .fan-card {
 
 /* PROBLEM / SOLUTION heading above each comparison image. */
 .project__chapter-prompt::before {
-  font-family: "tondo", sans-serif;
+  font-family: "work-sans", sans-serif;
   font-size: 17px;
   text-transform: none;
-  font-weight: 500;
+  font-weight: 400;
   margin-bottom: 8px;
   color: #0caaa2;
 }
@@ -2842,7 +2851,7 @@ body.is-panel-collapsed .fan-card {
 }
 .robotwall__desc {
   margin: 0;
-  font-family: "tondo", sans-serif;
+  font-family: "work-sans", sans-serif;
   font-size: 13px;
   color: oklch(0.4 0.01 330);
 }
@@ -2921,6 +2930,13 @@ body.is-panel-collapsed .robotwall__desc {
      margin, on top of the description's shared 20px bottom margin. Bottom is 0
      so the images→text gap is owned solely by the following text's margin-top. */
   margin: 34px 0 0;
+  /* Lets the --translate gallery's @container rule below react to this
+     block's own rendered width — not the viewport's. The 4-figure row needs
+     to re-center once it wraps, and the width where that wrapping actually
+     starts shifts with the left panel (expanded vs collapsed changes .page's
+     width by ~270px at the same viewport size), so a viewport media query
+     can't target one correct number the way a container query can. */
+  container-type: inline-size;
 }
 /* Scoped to the sound-combos gallery under "Mapping audio samples...": 20px
    instead of the standard 34px, so it collapses with the paragraph's own
@@ -3009,10 +3025,10 @@ body.is-panel-collapsed .robotwall__desc {
 
 .project__chapter-placeholders-subtitle {
   align-self: flex-start;          /* left-aligned to the row, not the page column */
-  font-family: "tondo", sans-serif;
+  font-family: "work-sans", sans-serif;
   font-size: 19px;
   letter-spacing: normal;
-  font-weight: 500;
+  font-weight: 400;
   color: #0caaa2;
   margin: 0 0 8px;
 }
@@ -3272,17 +3288,40 @@ body.is-panel-collapsed .scrubcar-group {
   height: 101px;                    /* p/pb: 47px shorter than the 148px default */
 }
 
-/* Wider image gap for this row only, so the base 3-image gap (31px) used
-   elsewhere (Character Design) stays untouched. space-between (not center)
-   so the row actually spans the full text column and visibly widens when
-   the left panel retracts, matching every other paragraph in the chapter —
-   centering would just pad both sides evenly and the row would look
-   identical at every column width. */
+/* A real grid, not a wrapping flex row. Flex-wrap let the browser fit as
+   many figures as would physically squeeze onto each line, which produced
+   two failure modes: rows with different total content width (Neas's short
+   caption vs. Tusker's longer one) centered independently and landed at
+   different x-offsets, so figures in the "same column" across rows didn't
+   line up; and at some widths 3 figures fit on line 1 with the 4th alone on
+   line 2, instead of an even split. Fixed, equal-width columns fix both —
+   every row shares the exact same column positions, and the column count
+   only ever changes at the breakpoints below, never based on what happens
+   to fit. Filling 100% of the container by construction also replaces the
+   old space-between hack for "spans wider when the panel retracts": these
+   columns already do that automatically. */
 .project__chapter-placeholders--translate {
-  gap: 21px;                        /* 31px default + 10px - 30px + 10px */
-  flex-wrap: wrap;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  justify-items: center;
+  column-gap: 21px;                 /* 31px default + 10px - 30px + 10px */
   row-gap: 20px;
+}
+
+/* 4 columns need roughly 870px before captions start fighting each other
+   for space (measured with the actual copy); 2 columns need about half
+   that. Below each threshold, drop a tier rather than let columns keep
+   shrinking indefinitely — narrower than ~150px a column just wraps every
+   caption into a wall of single words. */
+@container (max-width: 900px) {
+  .project__chapter-placeholders--translate {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@container (max-width: 480px) {
+  .project__chapter-placeholders--translate {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Caps each figure's longest quotes (e.g. Orion's) at the ~224px width the
@@ -3348,14 +3387,38 @@ body.is-panel-collapsed .translate-row-split {
   background: #ebf7f7;
 }
 
+/* Dead zone between the sitewide 860px mobile stack and however wide the
+   panel's ~430px column leaves this row: nowrap (below) keeps each duo's
+   pair from re-stacking, but with nothing above 860px telling the SPLIT
+   itself to give way, both duos kept trying to sit side by side past the
+   point they still fit — and since .project-shell has overflow-x:clip
+   (needed elsewhere for the card fan), the excess silently clipped instead
+   of wrapping or scrolling. 1050px was measured with the actual caption
+   copy: content still overflowed at 980px, comfortably clear by 1000px.
+   Stacks duo 1 above duo 2 (each duo still its own side-by-side pair) before
+   that point is reached. The divider reads as a side-by-side separator, not
+   a between-rows one, so it's dropped here rather than reoriented — same
+   "drop it" call the mobile breakpoint above already makes for .np-panel-next
+   and friends. */
+@media (max-width: 1050px) {
+  .translate-row-split {
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+  .translate-row-split__divider {
+    display: none;
+  }
+}
+
 /* Character name under each 01-6 sample image; same orange all-caps style
    as the site's other subtitles. */
 .project__chapter-placeholder-name {
-  font-family: "tondo", sans-serif;
+  font-family: "work-sans", sans-serif;
   font-size: 15px;
   letter-spacing: normal;
   text-transform: none;
-  font-weight: 500;
+  font-weight: 400;
   color: #0caaa2;
   margin: 8px 0 0;
   text-align: center;
@@ -3367,16 +3430,21 @@ body.is-panel-collapsed .translate-row-split {
    to fit both captions on one line, so Kairo dropped underneath Neas instead
    of sitting next to them. flex-shrink still lets the captions re-wrap their
    own text to fit, so this doesn't cause overflow.
-   width:auto overrides the shared .project__chapter-placeholders base rule's
-   width:100% — that 100% is for the first gallery filling the whole row, but
-   here it makes each duo box fight the other for an equal half of the split
-   row (via flex-basis), landing them at slightly different widths depending
-   on the divider's extra padding. Sized to its own content instead, both
-   duo boxes end up exactly as wide as their 2 figures + the gap between
-   them, so that gap (not a stray leftover-space remainder) is what
-   space-between renders — identical on both sides of the divider. */
+   Every property here is re-declared rather than inherited, because the
+   shared .project__chapter-placeholders--translate base rule is a 4-column
+   grid (see above) — right for the first gallery, wrong for a 2-figure duo
+   (it would place Neas and Kairo in a grid's first two columns and leave two
+   empty ones dangling). This override switches back to a plain flex row
+   instead of trying to make a 2-column grid behave like one.
+   width:auto keeps each duo box exactly as wide as its 2 figures + the gap
+   between them — without it, the duo would stretch to fill its share of the
+   split row, and space-between would render that leftover width as extra
+   gap instead of the pair sitting close together. */
 .translate-row-split .project__chapter-placeholders--translate {
+  display: flex;
   flex-wrap: nowrap;
+  justify-content: space-between;
+  gap: 21px;
   width: auto;
 }
 
@@ -3497,7 +3565,7 @@ body.is-panel-collapsed .translate-row-split .project__chapter-placeholders--tra
   font-size: 15px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  font-weight: 500;
+  font-weight: 400;
   color: #0caaa2;
   margin: 0 0 8px;
 }
@@ -3636,13 +3704,12 @@ body.is-panel-collapsed .translate-row-split .project__chapter-placeholders--tra
   margin: 0 0 6px;
 }
 .about-section__title {
-  font-family: "tondo", sans-serif;
+  font-family: "work-sans", sans-serif;
   font-size: calc(0.95rem + 6.5px);
-  font-weight: 800;
+  font-weight: 400;
   font-style: normal;
   color: #0caaa2;
-  text-transform: uppercase;
-  margin: 0 0 14px;
+  margin: 0 0 8px;
 }
 .about-bio {
   margin: 0;
@@ -3662,6 +3729,7 @@ body.is-panel-collapsed .translate-row-split .project__chapter-placeholders--tra
   display: flex;
   gap: 14px;
   height: 370px;
+  margin-top: 15px;
 }
 
 .clock-tab {
@@ -3691,7 +3759,7 @@ body.is-panel-collapsed .translate-row-split .project__chapter-placeholders--tra
   writing-mode: vertical-rl;
   transform: rotate(180deg);
   color: #ffffff;
-  font-weight: 800;
+  font-weight: 400;
   font-size: 17px;   /* retracted (collapsed) size only — .is-open overrides back down below */
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -3776,6 +3844,12 @@ body.is-panel-collapsed .translate-row-split .project__chapter-placeholders--tra
   display: flex;
   flex-direction: column;
   gap: 18.5px;
+  /* .about-bio's 1.65 line-height puts ~7px of invisible leading above its
+     first glyph that this div (and .clock-tabs below) don't get for free.
+     margin-top must clear .about-section__title's own 8px margin-bottom to
+     add anything at all — adjacent block margins collapse to their max, not
+     their sum, so anything <=8px here was previously a no-op. */
+  margin-top: 15px;
 }
 .about-skills__row {
   display: flex;
@@ -3889,9 +3963,9 @@ body.is-panel-collapsed .translate-row-split .project__chapter-placeholders--tra
 .about-name {
   max-width: 260px;
   margin: 18px 0 7.5px;
-  font-family: "tondo", sans-serif;
+  font-family: "work-sans", sans-serif;
   font-size: calc(2.1rem + 10px);
-  font-weight: 800;
+  font-weight: 400;
   font-style: normal;
   color: #1a1a1a;
   line-height: 1.1;
@@ -3937,7 +4011,7 @@ body.is-panel-collapsed .translate-row-split .project__chapter-placeholders--tra
   border-radius: 999px;
   background: transparent;
   color: #0caaa2;
-  font-weight: 700;
+  font-weight: 400;
   font-size: 17px;
   text-align: center;
   text-decoration: none;
@@ -4151,7 +4225,7 @@ body.page-tracklist .np-player__top {
   background: transparent;
   font-size: 12px;
   letter-spacing: 0.18em;
-  font-weight: 500;
+  font-weight: 400;
   color: #1cb5b5;
   line-height: 1;
 }
@@ -4346,14 +4420,14 @@ body.page-project .np-player--project {
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: #1cb5b5;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .np-player__subtitle {
   margin: 0 0 9.2px 12px;  /* 10px VISUAL gap down to the pill's border: the line box adds ~0.8px of dead space under the glyphs, so the margin is 10 − 0.8 */
   font-size: 15px;
   line-height: 1;
-  font-weight: 500;
+  font-weight: 400;
   color: #000000;
 }
 
@@ -4376,10 +4450,19 @@ body.page-project .np-player--project {
    the other projects use. Both share this one size — no per-track override.
    text-transform is inherited from the base rule, so these stay uppercase. */
 .np-player__title--tagfont {
-  font-family: "tondo", sans-serif;
+  font-family: "work-sans", sans-serif;
   font-weight: 700;
   font-style: normal;
-  font-size: clamp(40px, 2.2vw, 47px); /* smaller than the pixel title so the longer strings stay on one line */
+  /* Flat, not clamp(...vw...): this panel column doesn't actually keep
+     growing with the viewport past ~1150px (the grid's minmax(365,445)
+     first track tops out and the 2nd track/1fr absorbs the rest), so the
+     old vw-scaled clamp kept pushing the font size back up at wider windows
+     even though it had no more room to grow into — it just re-wrapped
+     "METRO REROUTED" again above ~1770px viewport. Measured the panel's
+     width across 862–2400px viewport: it never drops below 388px. 38px is
+     the largest size whose natural width (369px) still clears that 388px
+     column (minus the title's own 12px left margin, so 376px available). */
+  font-size: 38px;
   -webkit-text-stroke: 0; /* only the pixel font needs the fake-bold stroke */
   margin-top: 5px;        /* +5px down from the subtitle above — these two only */
 }
@@ -4420,7 +4503,7 @@ body.page-project .np-player--project {
 
 .np-timeline__date {
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.01em;
   color: #6d6d6d;
 }
@@ -4571,9 +4654,10 @@ body.page-project .np-player--project {
 
 /* ---------- RIGHT: cream album + tracklist ---------- */
 /* No card of its own — it sits directly on the page so only the black player
-   reads as a container. Keeps the full height so both columns still line up. */
+   reads as a container. Sized to its own content — .np's align-items:center
+   centers that content within the row (see .np), so it self-centers against
+   the left player's 100vh rail no matter how tall either side's content is. */
 .np-list {
-  min-height: calc(100vh - 24px);
   padding: calc(var(--space-6) - 31px) clamp(28px, 3vw, 48px) var(--space-6);
   margin-right: 10px;            /* trim 10px off the tracklist's width */
   display: flex;
@@ -4598,15 +4682,23 @@ body.page-project .np-player--project {
 
 .np-list__title {
   margin: -1px 0 0;
-  font-size: clamp(calc(1.9rem + 1px), 3vw, calc(2.4rem + 1px));
-  font-weight: bold;
+  font-family: "work-sans", sans-serif;
+  font-size: clamp(calc(1.9rem + 6px), 3vw, calc(2.4rem + 6px));
+  font-weight: 400;
+  font-style: normal;
   line-height: 1.05;
   color: #0c0c0c;
 }
 
+.np-list__title-italic {
+  font-family: "work-sans", sans-serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
 .np-artist {
   flex-shrink: 0;
-  margin-top: 10.5px;
+  margin-top: 20.5px;
 }
 
 .np-tracks {
