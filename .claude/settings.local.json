@@ -326,7 +326,18 @@
       "Bash(curl -s http://localhost:8012/)",
       "Bash(curl -s \"http://localhost:8099/main.js?v=20260809bq3\")",
       "Bash(grep -n \"Entry 1\\\\|Entry \\\\${\" /Users/jiho/Desktop/Portfolio/main.js)",
-      "Bash(grep -n \"'Entry\\\\|Entry \\\\${\" /Users/jiho/Desktop/Portfolio/main.js)"
+      "Bash(grep -n \"'Entry\\\\|Entry \\\\${\" /Users/jiho/Desktop/Portfolio/main.js)",
+      "Bash(nohup python3 -m http.server 8020 --bind 127.0.0.1)",
+      "Bash(disown)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://127.0.0.1:8020/pixel-quest.html)",
+      "Bash(pkill -f \"http.server 8020\")",
+      "Bash(nohup python3 -m http.server 8021 --bind 127.0.0.1)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://127.0.0.1:8021/pixel-quest.html)",
+      "Bash(pkill -f \"http.server 8021\")",
+      "Bash(nohup python3 -m http.server 8022 --bind 127.0.0.1)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://127.0.0.1:8022/pixel-quest.html)",
+      "Bash(pkill -f \"http.server 8022\")",
+      "Bash(echo \"exit:$?\")"
     ]
   }
 }

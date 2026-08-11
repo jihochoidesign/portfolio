@@ -3273,15 +3273,24 @@ body.is-panel-collapsed .scrubcar-group {
 }
 
 /* Wider image gap for this row only, so the base 3-image gap (31px) used
-   elsewhere (Character Design) stays untouched. The 4 captions' combined
-   width (up to ~224px each) now exceeds the ~670px text column, so wrap onto
-   a second line instead of overflowing, and center each line's leftover
-   space — keeps every figure (image + caption) centered as a group. */
+   elsewhere (Character Design) stays untouched. space-between (not center)
+   so the row actually spans the full text column and visibly widens when
+   the left panel retracts, matching every other paragraph in the chapter —
+   centering would just pad both sides evenly and the row would look
+   identical at every column width. */
 .project__chapter-placeholders--translate {
   gap: 21px;                        /* 31px default + 10px - 30px + 10px */
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: space-between;
   row-gap: 20px;
+}
+
+/* Caps each figure's longest quotes (e.g. Orion's) at the ~224px width the
+   row math above assumes — without this, an unwrapped caption stretches its
+   figure past half the row, knocking every figure after it onto its own
+   line instead of a clean 2-per-row grid. */
+.project__chapter-placeholders--translate .project__chapter-placeholder-caption {
+  max-width: 224px;
 }
 
 /* Fixed-height slot (matching the tallest/default image, 148px) so b/ba and
@@ -3304,9 +3313,16 @@ body.is-panel-collapsed .scrubcar-group {
 
 /* Second 01-6 gallery: two p/pb duos side by side, split by a vertical
    hairline. Kept to one row (no wrap): wrapping wound up stacking the two
-   duos onto separate lines, each centered independently — since the divider's
-   padding/border live inside the 2nd duo's own box, that broke the visible
-   alignment between the two halves instead of preserving it. */
+   duos onto separate lines, each centered independently, breaking the
+   visible alignment between the two halves.
+   The hairline is a real 3rd flex child (.translate-row-split__divider),
+   not padding/border baked into the 2nd duo. That used to glue the line to
+   the 2nd duo's own edge, so panel-collapsed's space-between — which hands
+   ALL its leftover width to the single gap between 2 items — piled every
+   bit of that extra space on the line's left side only, dragging it away
+   from center. With 3 items, space-between's leftover space instead splits
+   across both gaps (duo1↔divider, divider↔duo2) equally, so the line stays
+   centered between the duos no matter how much extra width there is. */
 .translate-row-split {
   display: flex;
   flex-wrap: nowrap;
@@ -3323,11 +3339,13 @@ body.is-panel-collapsed .translate-row-split {
   justify-content: space-between;
 }
 
-/* The line itself: a left border on the 2nd duo, sized to its own content
-   height automatically (no separate stretched element needed). */
-.translate-row-split__group--divided {
-  padding-left: 31.5px;              /* 24px + 7.5px, matches the gap above so the line stays centered */
-  border-left: 1.5px solid #ebf7f7;
+/* The line itself — stretches to match the row's height (set by the taller
+   of the two duos) the same way the old border-left did automatically. */
+.translate-row-split__divider {
+  align-self: stretch;
+  flex: 0 0 auto;
+  width: 1.5px;
+  background: #ebf7f7;
 }
 
 /* Character name under each 01-6 sample image; same orange all-caps style
@@ -3343,9 +3361,27 @@ body.is-panel-collapsed .translate-row-split {
   text-align: center;
 }
 
+/* Each duo (Neas + Kairo) must stay side by side, not stacked — the shared
+   --translate class wraps by default (needed for the first, 4-figure
+   gallery), but here that just meant the panel-expanded width wasn't enough
+   to fit both captions on one line, so Kairo dropped underneath Neas instead
+   of sitting next to them. flex-shrink still lets the captions re-wrap their
+   own text to fit, so this doesn't cause overflow.
+   width:auto overrides the shared .project__chapter-placeholders base rule's
+   width:100% — that 100% is for the first gallery filling the whole row, but
+   here it makes each duo box fight the other for an equal half of the split
+   row (via flex-basis), landing them at slightly different widths depending
+   on the divider's extra padding. Sized to its own content instead, both
+   duo boxes end up exactly as wide as their 2 figures + the gap between
+   them, so that gap (not a stray leftover-space remainder) is what
+   space-between renders — identical on both sides of the divider. */
+.translate-row-split .project__chapter-placeholders--translate {
+  flex-wrap: nowrap;
+  width: auto;
+}
+
 body.is-panel-collapsed .translate-row-split .project__chapter-placeholders--translate {
   gap: 44px;
-  flex-wrap: nowrap;
 }
 
 /* Play button under each 01-6 sample image; disabled where no matching

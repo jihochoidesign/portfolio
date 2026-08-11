@@ -540,7 +540,7 @@ function initChapters() {
               : idx === 2
               ? `<p class="project__chapter-description"><span class="project__chapter-description--flaw-subtitle" style="text-transform: none; color: #000000; font-size: 28px; line-height: 41.8px;"><span class="project__chapter-step-badge">1</span>Speech into Sound</span> Instead of trying to replicate every spoken syllable, I had to deconstruct speech into its core  patterns, breaking down sentences  into simple tonal sequences to depict feeling purely through pitch and rhythm.</p>` +
                 `<div class="project__chapter-placeholders-block" style="margin-top: 36px;">` +
-                  `<div class="project__chapter-placeholders project__chapter-placeholders--translate" style="justify-content: space-between;">` +
+                  `<div class="project__chapter-placeholders project__chapter-placeholders--translate">` +
                   [
                     ['p',  'Vintage Vox',           'capstonecollection/sounds/N7.wav'],
                     ['pb', 'Vintage Vox (low)',     'capstonecollection/sounds/K1.wav'],
@@ -596,7 +596,8 @@ function initChapters() {
                       `</figure>`
                     ).join('') +
                     `</div>` +
-                    `<div class="project__chapter-placeholders project__chapter-placeholders--translate translate-row-split__group--divided">` +
+                    `<div class="translate-row-split__divider"></div>` +
+                    `<div class="project__chapter-placeholders project__chapter-placeholders--translate">` +
                     [
                       ['p',  'Vintage Vox',       'capstonecollection/sounds/N3.wav'],
                       ['pb', 'Vintage Vox (low)', 'capstonecollection/sounds/K4.wav']
@@ -827,7 +828,7 @@ function initChapters() {
                   `</div>` +
                 `</figure>`)
           ).join('')
-        : c.title === 'Prologue: Act 1'
+        : c.title === 'Journal Mechanics & Animation'
         ? [
             'PART ONE: JOURNAL',
             'PART TWO: ANIMATION'
@@ -1002,7 +1003,7 @@ function initChapters() {
                 `</div>`
               : '')
           ).join('')
-        : c.title === 'Arc 2'
+        : c.title === 'Worldbuilding & Design'
         ? `<span class="project__chapter-tag">SPATIAL MAPPING &amp; LAYOUT</span>` +
           // Static spatial-plan image (formerly one card of the coverflow
           // carousel) — same width/border/ratio it always rendered at. Image
