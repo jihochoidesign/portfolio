@@ -109,7 +109,7 @@ function initTrackPlayer() {
   const TEXT = {
     from: 'Album',
     subtitle: 'CAPSTONE PROJECT',
-    pills: ['Narrative Adventure', 'Stealth & Survival'],
+    pills: ['Narrative Adventure', 'Game UX'],
     title: 'Domicile',
     desc: [
       'What do you do when the world stops making sense overnight?'
@@ -120,7 +120,7 @@ function initTrackPlayer() {
     { num: '01', href: 'pixel-quest.html',         images: IMG1,                              ...TEXT },
     { num: '02', href: 'metro-rerouted.html',      images: [`url('metro/mfinal2.png')`], ...TEXT,
       subtitle: 'WAYFINDING',
-      pills: ['Information Design', 'UI/UX Design'],
+      pills: ['Information Design'],
       title: 'Metro Rerouted',
       titleAlt: true, // renders in the tag font (bold) instead of the pixel display font
       desc: ['Designing a metro map for Abu Dhabi\'s newly established transit system.'],
@@ -219,9 +219,16 @@ function initTrackPlayer() {
   // only the play button opens the project page. Modifier-clicks fall through,
   // so cmd/ctrl-click can still open the row's link in a new tab, and the link
   // works as a normal link if JS never runs.
+  // On mobile the panel and list stack instead of sitting side by side (see
+  // the 860px breakpoint used throughout — e.g. stackQuery above), so there's
+  // no now-playing panel next to the row for a tap to update. There, let the
+  // row's own link (.track__main) navigate straight to the project page
+  // instead of loading it into a panel the user can't see.
+  const mobileQuery = window.matchMedia('(max-width: 860px)');
   rows.forEach((row, k) => {
     row.addEventListener('click', e => {
       if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+      if (mobileQuery.matches) return;
       e.preventDefault();
       show(k, true);
     });
