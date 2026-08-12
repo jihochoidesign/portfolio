@@ -4643,13 +4643,8 @@ body.page-project .np-player--project {
   font-size: 17px;
   letter-spacing: 0.02em;
   color: #0c0c0c;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--duration-interaction) var(--ease-standard);
-}
-
-.np-controls__play-wrap:hover .np-controls__play-label {
   opacity: 1;
+  pointer-events: none;
 }
 
 /* ---------- RIGHT: cream album + tracklist ---------- */
