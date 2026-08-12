@@ -215,24 +215,9 @@ function initTrackPlayer() {
   if (prev) prev.addEventListener('click', () => show(current - 1, true));
   if (next) next.addEventListener('click', () => show(current + 1, true));
 
-  // Clicking a row loads that project into the player instead of navigating —
-  // only the play button opens the project page. Modifier-clicks fall through,
-  // so cmd/ctrl-click can still open the row's link in a new tab, and the link
-  // works as a normal link if JS never runs.
-  // On mobile the panel and list stack instead of sitting side by side (see
-  // the 860px breakpoint used throughout — e.g. stackQuery above), so there's
-  // no now-playing panel next to the row for a tap to update. There, let the
-  // row's own link (.track__main) navigate straight to the project page
-  // instead of loading it into a panel the user can't see.
-  const mobileQuery = window.matchMedia('(max-width: 860px)');
-  rows.forEach((row, k) => {
-    row.addEventListener('click', e => {
-      if (e.metaKey || e.ctrlKey || e.shiftKey) return;
-      if (mobileQuery.matches) return;
-      e.preventDefault();
-      show(k, true);
-    });
-  });
+  // Clicking a row navigates straight to that project via its own link
+  // (.track__main) — no interception. The now-playing panel is still driven
+  // by the prev/next skip buttons (see above) and the initial show(0) below.
 
   show(0); // sync the panel + highlight to the first project (no timeline reset)
 }
