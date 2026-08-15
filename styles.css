@@ -781,11 +781,11 @@ body[data-project="metro"] .project__label {
 
 .np-chapter-section {
   padding: 20px 12px 6px;
-  margin-top: 8px;
+  margin-top: 23px;
   font-size: 13px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #0caaa2;
+  color: #bcbcbb;
 }
 
 .np-chapter {
@@ -4296,6 +4296,40 @@ body.page-tracklist .np-player {
    overflow-y:auto) scroll internally instead of the panel overflowing the rail. */
 body.page-project .np-player--project {
   max-height: calc(100vh - 24px);
+}
+
+/* Metro has more chapters than the other project pages (7 chapters + the
+   Companion App divider) — the shared cap above squeezes .np-chapters
+   short enough to scroll the last chapter out of view. Let Metro's panel
+   grow past one viewport height so every chapter renders visible with no
+   internal scrolling. Scoped to Metro only — every other project page
+   keeps the calc(100vh - 24px) cap untouched. */
+body[data-project="metro"] .np-player--project {
+  max-height: none;
+}
+
+/* Metro's chapter list needs more than one viewport's height. The rail
+   above (.np-player-col) is hard-pinned to exactly 100vh, and because the
+   panel itself has overflow:hidden, flexbox treats its minimum height as 0
+   instead of "at least its content height" — so the rail forces the panel
+   to squeeze down to 100vh regardless of the panel's own max-height above.
+   .np-chapters is the only child allowed to shrink that much, so it gets
+   crushed and its last rows get clipped. Let Metro's rail grow to fit its
+   content instead of forcing that squeeze. Scoped to Metro only — every
+   other project page keeps the sticky, viewport-pinned rail untouched. */
+body[data-project="metro"] .np-player-col {
+  position: static;
+  height: auto;
+}
+
+/* Push the Next Project button down for more breathing room below the
+   last chapter. Overrides the base .np-panel-next's margin-top:auto (a
+   no-op here since this panel hugs its content instead of filling a fixed
+   height). Safe to size freely now that max-height is unlimited for Metro
+   (see the rule above) — this no longer competes with .np-chapters for a
+   capped budget. */
+body[data-project="metro"] .np-panel-next {
+  margin-top: 64px;
 }
 
 body.page-project .np-player--project {
