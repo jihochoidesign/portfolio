@@ -779,6 +779,15 @@ body[data-project="metro"] .project__label {
   overflow-y: auto;                /* scroll only if the chapters ever outrun the panel */
 }
 
+.np-chapter-section {
+  padding: 20px 12px 6px;
+  margin-top: 8px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #0caaa2;
+}
+
 .np-chapter {
   display: grid;
   grid-template-columns: 30px 1fr auto;
