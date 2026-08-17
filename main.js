@@ -897,26 +897,23 @@ function initChapters() {
                 [
                   [
                     'Digital games put players in positions where mechanics force moral choices and value judgments, allowing players to experience the conflicts, dilemmas, and systemic pressures faced by refugee communities... facilitating empathy and critical literacy.',
-                    'M. Santos &amp; A. R. L. da Silva (2024)',
-                    '&ldquo;Papers, Please&rdquo;: Transpositions Between the Real and the Imaginary of Refugee Communities'
+                    'M. Santos &amp; A. R. L. da Silva (2024)'
                   ],
                   [
                     'When players experience narrative engagement and identify with characters facing severe adversity, social cognitive processes&mdash;such as perspective-taking and emotional understanding&mdash;are amplified, resulting in significantly higher post-game prosocial intentions.',
-                    'R. Wei et al. (2022)',
-                    'Virtuous Virtual Worlds: How Character Identification and Narrative Transportation Drive Post-Play Prosociality'
+                    'R. Wei et al. (2022)'
                   ],
                   [
                     'Individual-level perspective-taking is more strongly linked to a feeling of empathy compared to group-level perspective-taking. Video games provide such an opportunity for players...',
-                    'Sweeney Jing Li &amp; Zeph M. C. van Berlo (2025)',
-                    'Video games for good: Active perspective-taking fosters empathy and reduces implicit bias toward gendered violence victims'
+                    'Sweeney Jing Li &amp; Zeph M. C. van Berlo (2025)'
                   ]
-                ].map(([quote, author, research]) =>
+                ].map(([quote, author]) =>
                   `<figure class="project__chapter-quotecallout">` +
                     `<span class="project__chapter-quotecallout-mark" aria-hidden="true">&ldquo;</span>` +
                     `<blockquote class="project__chapter-quotecallout-text">${quote}</blockquote>` +
+                    `<span class="project__chapter-quotecallout-mark project__chapter-quotecallout-mark--close" aria-hidden="true">&rdquo;</span>` +
                     `<figcaption class="project__chapter-quotecallout-attribution">` +
                       `<span class="project__chapter-quotecallout-author">${author}</span>` +
-                      `<span class="project__chapter-quotecallout-research">${research}</span>` +
                     `</figcaption>` +
                   `</figure>`
                 ).join('') +
