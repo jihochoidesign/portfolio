@@ -1969,6 +1969,23 @@ body.is-panel-collapsed .fan-card {
   transform: translateY(0);
 }
 
+/* Research-citation group only (Domicile's 3-quote "Papers, Please" set) —
+   plain text block instead of an accented card: no left bar/fill, dashed
+   outline instead. Scoped to the group wrapper so the standalone app-review
+   quotecallouts (Metro's Darbi/S'hail/Google Maps) keep their accent + fill
+   untouched. */
+.project__chapter-quotecallout-group .project__chapter-quotecallout {
+  border: 2px dashed #0caaa2;
+  border-radius: 8px;
+  background: transparent;
+}
+
+.project__chapter-quotecallout-mark--close {
+  text-align: right;
+  margin-top: -8px;
+  margin-bottom: 0;
+}
+
 .project__chapter-quotecallout:nth-child(1).is-visible { transition-delay: 0s; }
 .project__chapter-quotecallout:nth-child(2).is-visible { transition-delay: 0.15s; }
 .project__chapter-quotecallout:nth-child(3).is-visible { transition-delay: 0.3s; }
