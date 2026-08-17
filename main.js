@@ -784,101 +784,6 @@ function initChapters() {
           `<p class="project__chapter-description"><span class="project__chapter-description--flaw-subtitle" style="line-height: 41.8px;">So, where does the network benefit from redundancy?</span>The initial iteration had travel heavily concentrated along the Blue and Green lines, where many stations were key city hubs. To balance network load, I added two additional lines to integrate the previously isolated Red line. This expansion distributes traffic more evenly across the system.</p>` +
           `<img src="metro/mfinal2.png" alt="Refined network layout 2" class="project__chapter-a2demo-video" style="margin-top: 34px;">` +
           `<p class="project__chapter-caption">Final Map Design</p>`
-        : (isMetro && c.title === 'Reframing the Problem')
-        ? `<p class="project__chapter-description" style="margin-bottom: 70px;"><span class="project__chapter-description--flaw-subtitle" style="text-transform: none; color: #000000; font-size: 28px; line-height: 41.8px;">Extending Transit Wayfinding to the Screen</span>The transit map solves wayfinding at the signage level, but real decisions happen mid-commute on a phone screen.</p>` +
-          `<p class="project__chapter-description project__chapter-description--label">PROBLEM STATEMENT</p>` +
-          `<p class="project__chapter-description" style="color: #000000; font-size: 24px; margin-bottom: 20px;">"How might we increase rider confidence in a system that's still building its own reputation?"</p>` +
-          `<p class="project__chapter-description">A new transit network has no track record. The mobile experience builds that trust by making system status, arrival accuracy, and journey steps transparent and predictable.</p>`
-        : (isMetro && c.title === 'App Benchmarking')
-        ? `<p class="project__chapter-description"><span class="project__chapter-description--flaw-subtitle" style="text-transform: none; color: #000000; font-size: 28px; line-height: 41.8px;">Benchmarking Commuter Choices: Local vs. Global</span>To understand usability gaps in transit navigation, I evaluated the trade-offs between local municipal apps (Darbi, S&rsquo;hail) and a global standard (Google Maps).</p>` +
-          `<div class="voice-eval" style="margin-top: 70px;">` +
-          [
-            {
-              name: 'Darbi (local &mdash; Abu Dhabi)',
-              pros: [
-                'Comprehensive feature set &mdash; broad functionality, but at the cost of interface clarity.'
-              ],
-              cons: [
-                'No offline/error state design for connectivity loss.',
-                'Account walls create onboarding friction.',
-                'Poor layout and responsiveness.',
-                'Unclear icons cause poor affordance, leading to guesswork.'
-              ]
-            },
-            {
-              name: 'S&rsquo;hail (local &mdash; Dubai)',
-              pros: [
-                'Clean, consistent UI with built-in tutorials.',
-                'Tailored local payment system available (NOL).'
-              ],
-              cons: [
-                'Live data dependency.',
-                'Full features require account login, creating onboarding friction.'
-              ]
-            },
-            {
-              name: 'Google Maps',
-              pros: [
-                'Strong for driving and traffic, with accurate crowd-sourced delays.',
-                'Familiar UI with a near-zero learning curve.',
-                'No transit-specific login required.'
-              ],
-              cons: [
-                'Generic &mdash; not tailored to local payment.'
-              ]
-            }
-          ].map(item =>
-            `<div class="voice-eval__card">` +
-              `<p class="voice-eval__name">${item.name}</p>` +
-              `<div class="voice-eval__cols">` +
-                `<div class="voice-eval__col voice-eval__col--pro">` +
-                  `<ul class="voice-eval__list">` +
-                  item.pros.map(text =>
-                    `<li class="voice-eval__item">` +
-                      `<span class="voice-eval__icon voice-eval__icon--pro">${tickSvg}</span>` +
-                      `<span class="voice-eval__text">${text}</span>` +
-                    `</li>`
-                  ).join('') +
-                  `</ul>` +
-                `</div>` +
-                `<div class="voice-eval__col voice-eval__col--con">` +
-                  `<ul class="voice-eval__list">` +
-                  item.cons.map(text =>
-                    `<li class="voice-eval__item">` +
-                      `<span class="voice-eval__icon voice-eval__icon--con">${crossSvg}</span>` +
-                      `<span class="voice-eval__text">${text}</span>` +
-                    `</li>`
-                  ).join('') +
-                  `</ul>` +
-                `</div>` +
-              `</div>` +
-            `</div>`
-          ).join('') +
-          `</div>` +
-          `<span class="project__chapter-tag" style="margin: 140px 0 15px; text-transform: none;">Darbi (Abu Dhabi)</span>` +
-          `<figure class="project__chapter-quotecallout">` +
-            `<span class="project__chapter-quotecallout-mark" aria-hidden="true">&ldquo;</span>` +
-            `<blockquote class="project__chapter-quotecallout-text">App is very much outdated... not user-friendly. I mostly prefer Google Maps to check the bus timings and it is more accurate and much better than Darbi.</blockquote>` +
-            `<figcaption class="project__chapter-quotecallout-attribution">` +
-              `<span class="project__chapter-quotecallout-author">&mdash; App Store Review</span>` +
-              `<span class="project__chapter-quotecallout-research" style="color: #bcbcbb;">(App last updated &mdash; January 1, 2024)</span>` +
-            `</figcaption>` +
-          `</figure>` +
-          `<span class="project__chapter-tag" style="margin: 40px 0 15px; text-transform: none;">S&rsquo;hail (Dubai RTA)</span>` +
-          `<figure class="project__chapter-quotecallout">` +
-            `<span class="project__chapter-quotecallout-mark" aria-hidden="true">&ldquo;</span>` +
-            `<blockquote class="project__chapter-quotecallout-text">The App does not give you the exact pick and drop time it&rsquo;s all depend upon driver some they reached early some time they drop you late so the app is only rough idea.</blockquote>` +
-            `<figcaption class="project__chapter-quotecallout-attribution">` +
-              `<span class="project__chapter-quotecallout-author">&mdash; Kamran Siddiq, Google Play Review</span>` +
-            `</figcaption>` +
-          `</figure>` +
-          `<span class="project__chapter-tag" style="margin: 40px 0 15px; text-transform: none;">Google Maps</span>` +
-          `<p class="project__chapter-description">Reviewers consistently cite real-time accuracy and reliability as why they default to it, even for non-transit needs.</p>` +
-          `<span class="project__chapter-tag" style="margin: 140px 0 15px;">Core Pain Points</span>` +
-          `<p class="project__chapter-description"><span class="project__chapter-description--flaw-subtitle" style="text-transform: none; color: #000000; font-size: 28px; line-height: 41.8px;">High-Friction Onboarding</span>Gating certain transit utilities behind account walls creates friction when riders need fast navigation, alienating tourists and rushed commuters.</p>` +
-          `<p class="project__chapter-description" style="margin-top: 70px;"><span class="project__chapter-description--flaw-subtitle" style="text-transform: none; color: #000000; font-size: 28px; line-height: 41.8px;">Neglect Resulting in Trust Deficit</span>Riders abandon municipal apps due to repeated maintenance neglect and inefficient updates. Through repeated disappointment and frustration, commuters default back to Google Maps for reliable navigation.</p>` +
-          `<p class="project__chapter-description" style="margin-top: 70px;"><span class="project__chapter-description--flaw-subtitle" style="text-transform: none; color: #000000; font-size: 28px; line-height: 41.8px;">Raised Threshold for Good UX</span>Fluid experiences on regional mobility apps like Careem and Yango have raised the bar for what riders expect from official transit tools.</p>` +
-          `<p class="project__chapter-description" style="margin-top: 70px;"><span class="project__chapter-description--flaw-subtitle" style="text-transform: none; color: #000000; font-size: 28px; line-height: 41.8px;">Single Source Predictions Lacking Accuracy</span>When predictions fail, user trust breaks and the entire system feels unreliable. Adding a crowd-sourced verification layer closes this loop by validating arrival status in real time.</p>`
         : !isDomicile
         ? ''
         : c.title === 'Character Design'
@@ -1386,11 +1291,6 @@ function initChapters() {
   if (host) {
     host.innerHTML = data.map((c, i) =>
       `<section class="project__chapter-section" data-chapter-section id="chapter-${i}">` +
-        // Marks the start of the companion-app chapters in the body, same as
-        // the "Companion App" divider already does in the left panel list.
-        (isMetro && c.title === 'Reframing the Problem'
-          ? `<p class="project__chapter-eyebrow">Companion App</p>`
-          : '') +
         `<h2 class="project__chapter-heading">` +
           `<span class="project__chapter-heading-num">${c.num}</span>` +
           `<span class="project__chapter-heading-title">${c.title}</span>` +
