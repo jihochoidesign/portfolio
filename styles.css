@@ -779,15 +779,6 @@ body[data-project="metro"] .project__label {
   overflow-y: auto;                /* scroll only if the chapters ever outrun the panel */
 }
 
-.np-chapter-section {
-  padding: 20px 12px 6px;
-  margin-top: 23px;
-  font-size: 13px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #bcbcbb;
-}
-
 .np-chapter {
   display: grid;
   grid-template-columns: 30px 1fr auto;
@@ -1288,21 +1279,6 @@ body.is-panel-collapsed .np-chapter--active {
 body.is-panel-collapsed .np-chapter::after,
 body.is-panel-collapsed .np-chapter::before {
   display: none;
-}
-
-/* A chapter-section divider (e.g. "Companion App") has no room in the 56px
-   rail either — its label doesn't shrink to fit, it overflows/wraps into a
-   garbled mess and throws off the ticks around it. Drop it like every other
-   non-essential row (home button, project title, ...) already is. The two
-   tick groups it used to separate still need a break between them, so the
-   first tick right after a hidden divider gets extra top margin instead:
-   the 12px .np-chapters gap plus 18px = 30px between groups. */
-body.is-panel-collapsed .np-chapter-section {
-  display: none;
-}
-
-body.is-panel-collapsed .np-chapter-section + .np-chapter {
-  margin-top: 18px;
 }
 
 /* Below this, the desktop two-column grid is why the article was crushed to
@@ -1819,20 +1795,6 @@ body.is-panel-collapsed .fan-card {
   .fan-card__inner {
     transition: none;
   }
-}
-
-/* Small label above a chapter heading, marking the start of a sub-group of
-   chapters (e.g. "Companion App" ahead of Metro's first companion-app
-   chapter) — same look as the left panel's matching .np-chapter-section
-   divider, so the two read as the same label. margin-bottom alone sets the
-   6.5px gap to the heading below (its own margin-top is 0, and adjacent
-   block margins collapse to the larger of the two). */
-.project__chapter-eyebrow {
-  margin: 0 0 6.5px;
-  font-size: 13px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #bcbcbb;
 }
 
 .project__chapter-heading {
@@ -4343,45 +4305,6 @@ body.page-tracklist .np-player {
    overflow-y:auto) scroll internally instead of the panel overflowing the rail. */
 body.page-project .np-player--project {
   max-height: calc(100vh - 24px);
-}
-
-/* Metro has more chapters than the other project pages (7 chapters + the
-   Companion App divider) — the shared cap above squeezes .np-chapters
-   short enough to scroll the last chapter out of view. Let Metro's panel
-   grow past one viewport height so every chapter renders visible with no
-   internal scrolling. Scoped to Metro only — every other project page
-   keeps the calc(100vh - 24px) cap untouched. */
-body[data-project="metro"] .np-player--project {
-  max-height: none;
-}
-
-/* Metro's chapter list can be taller than one viewport's height (7 chapters
-   + the Companion App divider). The base rail (.np-player-col) is
-   hard-pinned to exactly height:100vh, and because the panel itself has
-   overflow:hidden, flexbox treats its minimum height as 0 instead of "at
-   least its content height" — so the rail forces the panel to squeeze down
-   to 100vh regardless of the panel's own max-height above. .np-chapters is
-   the only child allowed to shrink that much, so it gets crushed and its
-   last rows get clipped. min-height instead of height lets Metro's rail
-   grow past 100vh on the rare short viewport where content doesn't fit
-   (nothing gets clipped), while on every normal-height screen the rail is
-   still exactly 100vh and the panel still centers inside it via the base
-   rule's justify-content:center — same sticky, vertically-centered
-   behavior as every other project page. Scoped to Metro only — every other
-   project page keeps the fixed-height, always-fits rail untouched. */
-body[data-project="metro"] .np-player-col {
-  height: auto;
-  min-height: 100vh;
-}
-
-/* Push the Next Project button down for more breathing room below the
-   last chapter. Overrides the base .np-panel-next's margin-top:auto (a
-   no-op here since this panel hugs its content instead of filling a fixed
-   height). Safe to size freely now that max-height is unlimited for Metro
-   (see the rule above) — this no longer competes with .np-chapters for a
-   capped budget. */
-body[data-project="metro"] .np-panel-next {
-  margin-top: 54px;
 }
 
 body.page-project .np-player--project {

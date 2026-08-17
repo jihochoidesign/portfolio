@@ -2348,22 +2348,6 @@ function initPanelToggle() {
   btn.addEventListener('click', () => {
     const next = !document.body.classList.contains('is-panel-collapsed');
 
-    // Metro's expanded panel is tall (its own content-driven height, no
-    // viewport cap — see the max-height:none rule scoped to
-    // body[data-project="metro"] in styles.css). Collapsing swaps almost all
-    // of that content for a slim dot rail, so without this the panel would
-    // shrink down to that dot rail's own short content height instead of
-    // keeping the footprint it had extended. Freeze it at its
-    // just-measured expanded height before the class flips (so this reads
-    // the pre-collapse height, not the post-collapse one), and release the
-    // freeze on the way back open so the natural content height takes over
-    // again. Scoped to Metro — every other project page's panel is short
-    // enough already that its collapsed and expanded heights never differ.
-    if (document.body.dataset.project === 'metro') {
-      const metroPanel = document.querySelector('.np-player--project');
-      if (metroPanel) metroPanel.style.minHeight = next ? metroPanel.offsetHeight + 'px' : '';
-    }
-
     // Captured BEFORE the class lands: part of the reflow (the card fan's
     // width and aspect-ratio) isn't transitioned and applies the instant the
     // class changes, so a reading taken afterwards would already be stale.
@@ -2433,16 +2417,6 @@ function syncPanelHeight() {
       // compact bar — so there's nothing to match heights against; syncing
       // anyway would stretch the compact bar back out to carousel height.
       if (window.matchMedia('(max-width: 860px)').matches) {
-        panel.style.height = '';
-        return;
-      }
-      // Metro's chapter list is taller than the tracklist panel it would
-      // otherwise be synced to — forcing that (shorter) height here is what
-      // clips its last chapters. Let Metro's panel keep its own
-      // content-driven height (see the max-height:none / height:auto rules
-      // scoped to body[data-project="metro"] in styles.css) instead of
-      // matching the tracklist. Every other project page still syncs below.
-      if (document.body.dataset.project === 'metro') {
         panel.style.height = '';
         return;
       }
