@@ -945,7 +945,7 @@ body[data-project="metro"] .project__label {
 /* Panel retracted → main body 30% wider (920px × 1.3 = 1196px), still capped
    by max-width:100% so it can never overflow a column narrower than that. */
 body.is-panel-collapsed .project-shell .page {
-  width: 1126.4px;   /* 1196px × 0.9, +20, +100px, −20px, −50px */
+  width: 1111.4px;   /* 1196px × 0.9, +20, +100px, −20px, −50px, −15px */
 }
 
 /* --- Project header: cover + title + credits --- */
@@ -1288,6 +1288,21 @@ body.is-panel-collapsed .np-chapter--active {
 body.is-panel-collapsed .np-chapter::after,
 body.is-panel-collapsed .np-chapter::before {
   display: none;
+}
+
+/* A chapter-section divider (e.g. "Companion App") has no room in the 56px
+   rail either — its label doesn't shrink to fit, it overflows/wraps into a
+   garbled mess and throws off the ticks around it. Drop it like every other
+   non-essential row (home button, project title, ...) already is. The two
+   tick groups it used to separate still need a break between them, so the
+   first tick right after a hidden divider gets extra top margin instead:
+   the 12px .np-chapters gap plus 18px = 30px between groups. */
+body.is-panel-collapsed .np-chapter-section {
+  display: none;
+}
+
+body.is-panel-collapsed .np-chapter-section + .np-chapter {
+  margin-top: 18px;
 }
 
 /* Below this, the desktop two-column grid is why the article was crushed to
@@ -1806,6 +1821,20 @@ body.is-panel-collapsed .fan-card {
   }
 }
 
+/* Small label above a chapter heading, marking the start of a sub-group of
+   chapters (e.g. "Companion App" ahead of Metro's first companion-app
+   chapter) — same look as the left panel's matching .np-chapter-section
+   divider, so the two read as the same label. margin-bottom alone sets the
+   6.5px gap to the heading below (its own margin-top is 0, and adjacent
+   block margins collapse to the larger of the two). */
+.project__chapter-eyebrow {
+  margin: 0 0 6.5px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #bcbcbb;
+}
+
 .project__chapter-heading {
   font-family: "work-sans", sans-serif;
   font-weight: 700;
@@ -2017,7 +2046,7 @@ body.is-panel-collapsed .fan-card {
 .voice-eval__name {
   font-size: 0.95rem;
   font-weight: 400;
-  color: #222;
+  color: #0caaa2;
   margin: 0 0 12px;
 }
 .voice-eval__cols {
@@ -2050,7 +2079,7 @@ body.is-panel-collapsed .fan-card {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  margin-top: 1px;
+  margin-top: 2.875px;
   color: #fff;
 }
 .voice-eval__icon--pro {
@@ -3591,6 +3620,7 @@ body.is-panel-collapsed .translate-row-split .project__chapter-placeholders--tra
 .sound-combos__lead {
   display: block;
   font-size: 15px;
+  font-weight: 400;
   color: #000000;
 }
 
@@ -4308,18 +4338,23 @@ body[data-project="metro"] .np-player--project {
   max-height: none;
 }
 
-/* Metro's chapter list needs more than one viewport's height. The rail
-   above (.np-player-col) is hard-pinned to exactly 100vh, and because the
-   panel itself has overflow:hidden, flexbox treats its minimum height as 0
-   instead of "at least its content height" — so the rail forces the panel
-   to squeeze down to 100vh regardless of the panel's own max-height above.
-   .np-chapters is the only child allowed to shrink that much, so it gets
-   crushed and its last rows get clipped. Let Metro's rail grow to fit its
-   content instead of forcing that squeeze. Scoped to Metro only — every
-   other project page keeps the sticky, viewport-pinned rail untouched. */
+/* Metro's chapter list can be taller than one viewport's height (7 chapters
+   + the Companion App divider). The base rail (.np-player-col) is
+   hard-pinned to exactly height:100vh, and because the panel itself has
+   overflow:hidden, flexbox treats its minimum height as 0 instead of "at
+   least its content height" — so the rail forces the panel to squeeze down
+   to 100vh regardless of the panel's own max-height above. .np-chapters is
+   the only child allowed to shrink that much, so it gets crushed and its
+   last rows get clipped. min-height instead of height lets Metro's rail
+   grow past 100vh on the rare short viewport where content doesn't fit
+   (nothing gets clipped), while on every normal-height screen the rail is
+   still exactly 100vh and the panel still centers inside it via the base
+   rule's justify-content:center — same sticky, vertically-centered
+   behavior as every other project page. Scoped to Metro only — every other
+   project page keeps the fixed-height, always-fits rail untouched. */
 body[data-project="metro"] .np-player-col {
-  position: static;
   height: auto;
+  min-height: 100vh;
 }
 
 /* Push the Next Project button down for more breathing room below the
@@ -4329,7 +4364,7 @@ body[data-project="metro"] .np-player-col {
    (see the rule above) — this no longer competes with .np-chapters for a
    capped budget. */
 body[data-project="metro"] .np-panel-next {
-  margin-top: 64px;
+  margin-top: 54px;
 }
 
 body.page-project .np-player--project {
@@ -4686,8 +4721,13 @@ body.page-project .np-player--project {
   font-size: 17px;
   letter-spacing: 0.02em;
   color: #0c0c0c;
-  opacity: 1;
+  opacity: 0;
   pointer-events: none;
+  transition: opacity var(--duration-interaction) var(--ease-standard);
+}
+
+.np-controls__play-wrap:hover .np-controls__play-label {
+  opacity: 1;
 }
 
 /* ---------- RIGHT: cream album + tracklist ---------- */
